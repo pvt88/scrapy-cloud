@@ -72,9 +72,9 @@ ITEM_PIPELINES = {
 
 # This is just for development. Don't do this on production. Put your credentials elsewhere.
 MONGODB_CREDENTIALS = {
-        "server": "your_mongodb_server",
-        "post": 23478,
-        "database": "your_database_name",
+        "server": "localhost",
+        "port": 27017,
+        "database": "scrapy",
         "username": "your_username",
         "password": "your_password"
 }

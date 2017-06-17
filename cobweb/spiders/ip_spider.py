@@ -7,7 +7,9 @@ from cobweb.items import IPItem
 
 class IPSpider(scrapy.Spider):
     name = 'ip_spider'
-    start_urls = ["http://ifconfig.me/ip"]
+    start_urls = [
+    	"http://ifconfig.me/ip"
+    ]
 
     def parse(self, response):
         item = IPItem()
