@@ -10,7 +10,7 @@ from scrapy.conf import settings
 from scrapy.exceptions import DropItem
 from scrapy import log
 
-from items import IPItem, HouseItem
+from items import IPItem, HouseItem, PropertyItem
 
 # For example, here is an implementation of a pipeline that processes
 # and stores the spider's crawled data into MongoDB database.
@@ -43,5 +43,10 @@ class MongoDBPipeline(object):
                 self.collection = self.db['houses']
                 self.collection.insert(dict(item))
                 log.msg("Added houses to database!", level=log.DEBUG, spider=spider)
+
+            if isinstance(item, PropertyItem): 
+                self.collection = self.db['property_list']
+                self.collection.insert(dict(item))
+                log.msg("Added property to database!", level=log.DEBUG, spider=spider)
                 
         return item

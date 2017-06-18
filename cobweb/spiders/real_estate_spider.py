@@ -6,36 +6,24 @@ from cobweb.items import HouseItem
 from cobweb.utilities import strip, extract_number, extract_unit
 
 class RealEstateSpider(scrapy.Spider):
-    ROOT_URL = 'http://batdongsan.com.vn'
     SEPARATOR = '/'
 
     name = 'real_estate_spider'
 
-    start_urls = [
-    	"http://batdongsan.com.vn/ban-nha-rieng-duong-nguyen-cuu-van-phuong-17-1/biet-thu-p-binh-thanh-dt-12x20m-2l-gia-19-ty-pr12538732",
-        "http://batdongsan.com.vn/ban-nha-rieng-xa-da-phuoc-1/biet-thu-vuon-mat-pho-1t-1l-chinh-chu-moi-xay-dung-so-hong-lh-0918325348-gap-a-hai-pr12688310",
-        "http://batdongsan.com.vn/ban-can-ho-chung-cu-duong-vo-van-kiet-phuong-16-1-prj-city-gate-towers-2/diamond-riverside-q-8-mt-viettinbank-bao-lanh-3-ty-2pn-73m2-full-noi-that-090368426-pr12696055",
-        "http://batdongsan.com.vn/ban-nha-mat-pho-duong-nguyen-van-linh-50/tien-da-nang-dang-kinh-doanh-khach-san-pr12467041",
-        "http://batdongsan.com.vn/ban-nha-rieng-duong-bui-huu-nghia-phuong-2-20/re-moi-xay-hxh-7m-p-dt-6x5-154m-1-tret-lau-gia-8-9-ty-tl-pr12643513",
-        "http://batdongsan.com.vn/ban-dat-nen-du-an-duong-huong-lo-2-xa-long-hung-6-prj-dreamland-city/nhan-ngay-mo-ck2-tang-so-tiet-kiem-30tr-cho-khach-hang-mua-kdt-lh-0934141826-pr12693927",
-        "http://batdongsan.com.vn/ban-can-ho-chung-cu-duong-vo-van-kiet-phuong-16-1-prj-city-gate-towers-2/diamond-riverside-pn-toilet-73m-gia-3-ty-dai-lo-q-8-pr12703754",
-        "http://batdongsan.com.vn/ban-can-ho-chung-cu-duong-nguyen-thi-thap-phuong-binh-thuan-3-prj-hung-phat-golden-star/the-lien-ke-pmh-chi-1-8-ty-2pn-noi-that-an-thien-90-ck-4-pr12032965"
-    ]
-
     def __init__(self, vendor=None, crawl_url=None, *args, **kwargs):
         super(RealEstateSpider, self).__init__(*args, **kwargs)
-        sub_domains = [s for s in subdomain_url.split(self.SEPARATOR) if s]
+        self.vendor = vendor
+        sub_domains = [s for s in crawl_url.split(self.SEPARATOR) if s]
         self.area_subdomain = sub_domains[0]
         self.property_subdomain = sub_domains[1]
-        self.vendor = vendor
-        self.start_urls.append(vendor + self.SEPARATOR + self.area_subdomain + self.SEPARATOR + self.property_subdomain)
+        self.start_urls = [self.vendor + self.SEPARATOR + self.area_subdomain + self.SEPARATOR + self.property_subdomain]
 
     def parse(self, response):
         #check if response it not a HtmlResponse already
         if not isinstance(response, scrapy.http.response.html.HtmlResponse): 
             response = scrapy.http.response.html.HtmlResponse(response.url,body=response.body)
 
-        selector = scrapy.selector.HtmlXPathSelector(response)
+        selector = scrapy.Selector(response)
 
         item = HouseItem()
 

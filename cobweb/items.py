@@ -12,6 +12,12 @@ class IPItem(Item):
     date = Field()
     ip_address = Field()
 
+class PropertyItem(Item):
+	vendor = Field()
+	created_date = Field()
+	last_crawled_date = Field()
+	link = Field()
+
 class HouseItem(Item):
 	vendor = Field()
 	link = Field()

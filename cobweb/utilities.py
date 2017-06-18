@@ -9,7 +9,7 @@ def strip(ls):
 
 def extract_number(str):
 	if str: 
-		return float(''.join(re.findall(r'\d+', str)))
+		return ''.join(re.findall(r'\d+', str))
 
 def extract_unit(str):
 	if str:
