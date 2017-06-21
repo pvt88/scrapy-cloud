@@ -14,3 +14,16 @@ pip install -r requirements.txt
    
 2. TBC
 
+3.Deploy scrapyd to AWS
+
+Check your deployment target:
+```
+scrapyd-deploy -l
+```
+
+Deploy to your local target
+
+```
+scrapyd-deploy local-target -p <your_project>
+```
+

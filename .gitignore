@@ -63,3 +63,17 @@ target/
 
 #Virtualenv
 scrappy_env
+
+#Resource folder which has your configuration file
+cobweb/resources/
+
+#Scrapyd auto-generated file
+dbs/
+eggs/
+items/
+logs/
+project.egg-info
+scrapy.cfg
+setup.py
+twistd*
+

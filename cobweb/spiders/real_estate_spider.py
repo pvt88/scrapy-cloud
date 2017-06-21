@@ -19,7 +19,6 @@ class RealEstateSpider(scrapy.Spider):
         self.start_urls = [self.vendor + self.SEPARATOR + self.area_subdomain + self.SEPARATOR + self.property_subdomain]
 
     def parse(self, response):
-        #check if response it not a HtmlResponse already
         if not isinstance(response, scrapy.http.response.html.HtmlResponse): 
             response = scrapy.http.response.html.HtmlResponse(response.url,body=response.body)
 

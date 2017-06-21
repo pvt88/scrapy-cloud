@@ -10,12 +10,14 @@ from scrapy.item import Item, Field
 class IPItem(Item):
     status = Field()
     date = Field()
-    ip_address = Field()
+    json = Field()
 
 class PropertyItem(Item):
 	vendor = Field()
 	created_date = Field()
 	last_crawled_date = Field()
+	last_indexed_date = Field()
+	property_id = Field()
 	link = Field()
 
 class HouseItem(Item):

@@ -48,5 +48,15 @@ class MongoDBPipeline(object):
                 self.collection = self.db['property_list']
                 self.collection.insert(dict(item))
                 log.msg("Added property to database!", level=log.DEBUG, spider=spider)
+
+                self.collection = self.db['property_list']
+                self.collection.update({"link": item['link'],"property_id": item['property_id'], "vendor": item['vendor']},
+                                       {"$set": {"last_indexed_date": item['last_indexed_date']},
+                                        "$setOnInsert": {"created_date": item['created_date'],
+                                                         "last_indexed_date": item['last_indexed_date']},
+                                       },
+                                       upsert=True)
+
+                log.msg("Update Seed Item in MongoDB database!", level=log.DEBUG, spider=spider)
                 
         return item
