@@ -19,6 +19,12 @@ class PropertyItem(Item):
 	last_indexed_date = Field()
 	property_id = Field()
 	link = Field()
+	property_size = Field()
+	property_size_unit = Field()
+	property_price = Field()
+	property_price_unit = Field()
+	property_area = Field()
+	posted_date = Field()
 
 class HouseItem(Item):
 	vendor = Field()

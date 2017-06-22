@@ -44,19 +44,23 @@ class MongoDBPipeline(object):
                 self.collection.insert(dict(item))
                 log.msg("Added houses to database!", level=log.DEBUG, spider=spider)
 
-            if isinstance(item, PropertyItem): 
-                self.collection = self.db['property_list']
-                self.collection.insert(dict(item))
-                log.msg("Added property to database!", level=log.DEBUG, spider=spider)
-
-                self.collection = self.db['property_list']
-                self.collection.update({"link": item['link'],"property_id": item['property_id'], "vendor": item['vendor']},
-                                       {"$set": {"last_indexed_date": item['last_indexed_date']},
-                                        "$setOnInsert": {"created_date": item['created_date'],
-                                                         "last_indexed_date": item['last_indexed_date']},
+            if isinstance(item, PropertyItem):
+                self.collection = self.db['property_list_rental']
+                self.collection.update({"link": item['link'], 
+                                        "property_id": item['property_id'],
+                                        "vendor": item['vendor']},
+                                       {"$setOnInsert": {"created_date": item['created_date'],
+                                                         "last_indexed_date": item['last_indexed_date'],
+                                                         "property_size": item['property_size'],
+                                                         "property_size_unit": item['property_size_unit'],
+                                                         "property_price": item['property_price'],
+                                                         "property_price_unit": item['property_price_unit'],
+                                                         "property_area": item['property_area'],
+                                                         "posted_date": item['posted_date']
+                                                        },
                                        },
                                        upsert=True)
 
-                log.msg("Update Seed Item in MongoDB database!", level=log.DEBUG, spider=spider)
+                log.msg("Update PropertyItem in MongoDB database!", level=log.DEBUG, spider=spider)
                 
         return item
