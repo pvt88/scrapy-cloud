@@ -23,13 +23,13 @@ USER_AGENT_LIST = load_list_from_file('/cobweb/resources/useragents.txt')
 
 # Proxy list containing entries like
 # http://host1:port1
-#HTTP_PROXIES = load_lines('/cobweb/resources/prod_proxies.txt')
-HTTP_PROXIES = load_list_from_file('/cobweb/resources/test_proxies.txt')
+HTTP_PROXIES = load_list_from_file('/cobweb/resources/prod_proxies.txt')
+#HTTP_PROXIES = load_list_from_file('/cobweb/resources/test_proxies.txt')
 
 # Retry many times since proxies often fail
 RETRY_TIMES = 20
 # Retry on most error codes since proxies fail for different reasons
-RETRY_HTTP_CODES = [500, 503, 504, 400, 403, 404, 408]
+RETRY_HTTP_CODES = [500, 503, 504, 514, 400, 403, 404, 408]
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS=32
@@ -37,7 +37,7 @@ RETRY_HTTP_CODES = [500, 503, 504, 400, 403, 404, 408]
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY=5
+DOWNLOAD_DELAY=8
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN=16
 #CONCURRENT_REQUESTS_PER_IP=16
@@ -67,7 +67,7 @@ DOWNLOADER_MIDDLEWARES = {
     'cobweb.middlewares.RandomUserAgentMiddleware': 400,
     #'cobweb.middlewares.ProxyMiddleware': 410,
     'cobweb.middlewares.RandomProxyMiddleware': 420,
-    'scrapy.downloadermiddlewares.retry.RetryMiddleware': 90,
+    'cobweb.middlewares.RetryMiddleware':90,
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': 100,
     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110
 }
