@@ -8,17 +8,28 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
+from cobweb.utilities import load_list_from_file
 
-BOT_NAME = 'Cobweb'
+BOT_NAME = 'Googlebot'
 
 SPIDER_MODULES = ['cobweb.spiders']
 NEWSPIDER_MODULE = 'cobweb.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'cobweb (+http://www.yourdomain.com)'
-USER_AGENT_LIST = [
-    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.36 Safari/535.7'
-]
+
+REFERER_LIST = load_list_from_file('/cobweb/resources/referers.txt')
+
+USER_AGENT_LIST = load_list_from_file('/cobweb/resources/useragents.txt')
+
+# Proxy list containing entries like
+# http://host1:port1
+HTTP_PROXIES = load_list_from_file('/cobweb/resources/prod_proxies.txt')
+#HTTP_PROXIES = load_list_from_file('/cobweb/resources/test_proxies.txt')
+
+# Retry many times since proxies often fail
+RETRY_TIMES = 20
+# Retry on most error codes since proxies fail for different reasons
+RETRY_HTTP_CODES = [500, 503, 504, 514, 400, 403, 404, 408]
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS=32
@@ -26,7 +37,7 @@ USER_AGENT_LIST = [
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY=5
+DOWNLOAD_DELAY=8
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN=16
 #CONCURRENT_REQUESTS_PER_IP=16
@@ -53,9 +64,12 @@ COOKIES_ENABLED=False
 # Enable or disable downloader middlewares or your custom middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-     'cobweb.middlewares.RandomUserAgentMiddleware': 400,
-     #'cobweb.middlewares.ProxyMiddleware': 410, 
-     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None
+    'cobweb.middlewares.RandomUserAgentMiddleware': 400,
+    #'cobweb.middlewares.ProxyMiddleware': 410,
+    'cobweb.middlewares.RandomProxyMiddleware': 420,
+    'cobweb.middlewares.RetryMiddleware':90,
+    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': 100,
+    'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110
 }
 
 # Enable or disable extensions
@@ -72,11 +86,11 @@ ITEM_PIPELINES = {
 
 # This is just for development. Don't do this on production. Put your credentials elsewhere.
 MONGODB_CREDENTIALS = {
-        "server": "your_mongodb_server",
-        "post": 23478,
-        "database": "your_database_name",
-        "username": "your_username",
-        "password": "your_password"
+    "server": "localhost",
+    "port": 27017,
+    "database": "real_estate",
+    "username": "your_username",
+    "password": "your_password"
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

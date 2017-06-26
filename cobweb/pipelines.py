@@ -10,8 +10,7 @@ from scrapy.conf import settings
 from scrapy.exceptions import DropItem
 from scrapy import log
 
-from items import IPItem
-from spiders.ip_spider import IPSpider
+from items import IPItem, HouseItem, PropertyItem
 
 # For example, here is an implementation of a pipeline that processes
 # and stores the spider's crawled data into MongoDB database.
@@ -30,7 +29,7 @@ class MongoDBPipeline(object):
                              socketKeepAlive=True)
 
         self.db = client[mongodb_credentials['database']]
-        self.db.authenticate(mongodb_credentials['username'], mongodb_credentials['password'])
+        #self.db.authenticate(mongodb_credentials['username'], mongodb_credentials['password'])
 
     def process_item(self, item, spider):
         valid = True
@@ -40,9 +39,28 @@ class MongoDBPipeline(object):
                 raise DropItem("Missing {0}!".format(data))
 
         if valid:
-            if isinstance(item, IPItem): 
-                self.collection = self.db['ip_addresses']
+            if isinstance(item, HouseItem): 
+                self.collection = self.db['houses']
                 self.collection.insert(dict(item))
-                log.msg("Added IP Item to database!", level=log.DEBUG, spider=spider)
+                log.msg("Added houses to database!", level=log.DEBUG, spider=spider)
+
+            if isinstance(item, PropertyItem):
+                self.collection = self.db['property_list_rental']
+                self.collection.update({"link": item['link'], 
+                                        "property_id": item['property_id'],
+                                        "vendor": item['vendor']},
+                                       {"$setOnInsert": {"created_date": item['created_date'],
+                                                         "last_indexed_date": item['last_indexed_date'],
+                                                         "property_size": item['property_size'],
+                                                         "property_size_unit": item['property_size_unit'],
+                                                         "property_price": item['property_price'],
+                                                         "property_price_unit": item['property_price_unit'],
+                                                         "property_area": item['property_area'],
+                                                         "posted_date": item['posted_date']
+                                                        },
+                                       },
+                                       upsert=True)
+
+                log.msg("Update PropertyItem in MongoDB database!", level=log.DEBUG, spider=spider)
                 
         return item
