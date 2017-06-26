@@ -64,10 +64,9 @@ COOKIES_ENABLED=False
 # Enable or disable downloader middlewares or your custom middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    'cobweb.middlewares.RandomUserAgentMiddleware': 400,
-    #'cobweb.middlewares.ProxyMiddleware': 410,
-    'cobweb.middlewares.RandomProxyMiddleware': 420,
-    'cobweb.middlewares.RetryMiddleware':90,
+    'cobweb.middlewares.random_useragent.RandomUserAgentMiddleware': 400,
+    'cobweb.middlewares.random_proxy.RandomProxyMiddleware': 420,
+    'cobweb.middlewares.retry.RetryMiddleware':90,
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': 100,
     'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110
 }
@@ -82,6 +81,7 @@ DOWNLOADER_MIDDLEWARES = {
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
+   'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
 }
 
 # This is just for development. Don't do this on production. Put your credentials elsewhere.
