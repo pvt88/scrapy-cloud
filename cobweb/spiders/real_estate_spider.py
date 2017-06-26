@@ -1,4 +1,3 @@
-import httplib
 import scrapy
 
 from datetime import datetime

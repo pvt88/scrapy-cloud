@@ -1,4 +1,3 @@
-import unicodedata
 import re
 import os
 
