@@ -1,4 +1,3 @@
-import httplib
 import scrapy
 import json
 
@@ -16,7 +15,6 @@ class IPSpider(scrapy.Spider):
         item = IPItem()
         item["status"] = response.status
         item['date'] = datetime.utcnow()
-        if item["status"] == httplib.OK:
-            item['json'] = json.loads(response.body_as_unicode())
+        item['json'] = json.loads(response.body_as_unicode())
 
         yield item

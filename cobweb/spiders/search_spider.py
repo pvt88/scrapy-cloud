@@ -1,10 +1,8 @@
-import httplib
 import scrapy
 
 from datetime import datetime
 from cobweb.items import PropertyItem
 from cobweb.utilities import extract_number, extract_unit, extract_property_id, strip
-from scrapy import log
 
 class SearchSpider(scrapy.Spider):
     name = 'search_spider'
@@ -21,8 +19,6 @@ class SearchSpider(scrapy.Spider):
     def parse(self, response):
         if not isinstance(response, scrapy.http.response.html.HtmlResponse): 
             response = scrapy.http.response.html.HtmlResponse(response.url,body=response.body)
-
-        selector = scrapy.Selector(response)
 
         search_results = response.css(u'.search-productItem')        
 

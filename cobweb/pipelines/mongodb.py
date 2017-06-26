@@ -1,19 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# Implement your pipelines here. For an overview of the scrapy architecture, refer to the official documentation:
-#
-#     http://doc.scrapy.org/en/latest/topics/architecture.html
-
 from pymongo import MongoClient # pymongo>=3.2
 
 from scrapy.conf import settings
 from scrapy.exceptions import DropItem
 from scrapy import log
+from cobweb.items import HouseItem, PropertyItem
 
-from items import IPItem, HouseItem, PropertyItem
-
-# For example, here is an implementation of a pipeline that processes
-# and stores the spider's crawled data into MongoDB database.
 class MongoDBPipeline(object):
 
     def __init__(self):
@@ -36,16 +29,17 @@ class MongoDBPipeline(object):
         for data in item:
             if not data:
                 valid = False
-                raise DropItem("Missing {0}!".format(data))
+                raise DropItem("Missing {}!".format(data))
 
         if valid:
             if isinstance(item, HouseItem): 
                 self.collection = self.db['houses']
                 self.collection.insert(dict(item))
-                log.msg("Added houses to database!", level=log.DEBUG, spider=spider)
+                log.msg("Added House Item to database!", level=log.DEBUG, spider=spider)
 
             if isinstance(item, PropertyItem):
-                self.collection = self.db['property_list_rental']
+                self.collection = self.db['property_list']
+
                 self.collection.update({"link": item['link'], 
                                         "property_id": item['property_id'],
                                         "vendor": item['vendor']},
@@ -61,6 +55,21 @@ class MongoDBPipeline(object):
                                        },
                                        upsert=True)
 
-                log.msg("Update PropertyItem in MongoDB database!", level=log.DEBUG, spider=spider)
+                self.collection.update({"link": item['link'],
+                                        "property_id": item['property_id'],
+                                        "vendor": item['vendor']},
+                                       {"$set": {
+                                                         "last_indexed_date": item['last_indexed_date'],
+                                                         "property_size": item['property_size'],
+                                                         "property_size_unit": item['property_size_unit'],
+                                                         "property_price": item['property_price'],
+                                                         "property_price_unit": item['property_price_unit'],
+                                                         "property_area": item['property_area'],
+                                                         "posted_date": item['posted_date']
+                                                         },
+                                        },
+                                       upsert=False)
+
+                log.msg("Update Property Item in MongoDB database!", level=log.DEBUG, spider=spider)
                 
         return item
