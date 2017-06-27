@@ -38,7 +38,7 @@ class MongoDBPipeline(object):
                 log.msg("Added House Item to database!", level=log.DEBUG, spider=spider)
 
             if isinstance(item, PropertyItem):
-                self.collection = self.db['property_list']
+                self.collection = self.db['property_list_rental']
 
                 self.collection.update({"link": item['link'], 
                                         "property_id": item['property_id'],

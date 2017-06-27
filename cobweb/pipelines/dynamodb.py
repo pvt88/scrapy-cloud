@@ -1,7 +1,7 @@
 import datetime
 import boto3
 
-class DynamoDbPipeline(object):
+class DynamoDBPipeline(object):
 
     def _default_encoder(value):
         if isinstance(value, datetime.datetime):
