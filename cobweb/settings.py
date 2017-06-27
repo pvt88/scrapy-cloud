@@ -80,7 +80,7 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
+   #'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
    'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
 }
 
@@ -95,5 +95,5 @@ MONGODB_CREDENTIALS = {
 
 AWS_ACCESS_KEY_ID = '<aws access key id>'
 AWS_SECRET_ACCESS_KEY = '<aws secret access key>'
-DYNAMODB_PIPELINE_REGION_NAME = 'us-east-1'
+DYNAMODB_PIPELINE_REGION_NAME = 'us-west-2'
 DYNAMODB_PIPELINE_TABLE_NAME = 'my_table'

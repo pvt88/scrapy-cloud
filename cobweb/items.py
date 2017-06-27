@@ -60,5 +60,3 @@ class HouseItem(Item):
 	project_owner = Field()
 	project_scale = Field()
 	project_link = Field()
-    
-
