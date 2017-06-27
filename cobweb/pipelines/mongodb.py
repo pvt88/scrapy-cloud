@@ -40,8 +40,7 @@ class MongoDBPipeline(object):
             if isinstance(item, PropertyItem):
                 self.collection = self.db['property_list']
 
-                self.collection.update({"link": item['link'], 
-                                        "property_id": item['property_id'],
+                self.collection.update({"property_id": item['property_id'],
                                         "vendor": item['vendor']},
                                        {"$setOnInsert": {"created_date": item['created_date'],
                                                          "last_indexed_date": item['last_indexed_date'],
@@ -50,23 +49,23 @@ class MongoDBPipeline(object):
                                                          "property_price": item['property_price'],
                                                          "property_price_unit": item['property_price_unit'],
                                                          "property_area": item['property_area'],
-                                                         "posted_date": item['posted_date']
+                                                         "posted_date": item['posted_date'],
+                                                         "link": item['link']
                                                         },
                                        },
                                        upsert=True)
 
-                self.collection.update({"link": item['link'],
-                                        "property_id": item['property_id'],
+                self.collection.update({"property_id": item['property_id'],
                                         "vendor": item['vendor']},
-                                       {"$set": {
-                                                         "last_indexed_date": item['last_indexed_date'],
-                                                         "property_size": item['property_size'],
-                                                         "property_size_unit": item['property_size_unit'],
-                                                         "property_price": item['property_price'],
-                                                         "property_price_unit": item['property_price_unit'],
-                                                         "property_area": item['property_area'],
-                                                         "posted_date": item['posted_date']
-                                                         },
+                                       {"$set": {"last_indexed_date": item['last_indexed_date'],
+                                                 "property_size": item['property_size'],
+                                                 "property_size_unit": item['property_size_unit'],
+                                                 "property_price": item['property_price'],
+                                                 "property_price_unit": item['property_price_unit'],
+                                                 "property_area": item['property_area'],
+                                                 "posted_date": item['posted_date'],
+                                                 "link": item['link']
+                                                 },
                                         },
                                        upsert=False)
 
