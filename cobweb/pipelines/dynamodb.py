@@ -1,5 +1,6 @@
 import datetime
 import boto3
+from decimal import Decimal
 
 class DynamoDBPipeline(object):
 
@@ -10,6 +11,8 @@ class DynamoDBPipeline(object):
             return value.strftime('%Y-%m-%d')
         elif isinstance(value, datetime.time):
             return value.strftime('%H:%M:%S')
+        elif isinstance(value, float):
+            return Decimal(str(value)) # This is to work around boto/DynamoDB restriction on Float
         else:
             return value
 

@@ -10,10 +10,10 @@ from scrapy.item import Item, Field
 class IPItem(Item):
     status = Field()
     date = Field()
-	lat = Field()
-	lon = Field()
-	timezone = Field()
-	org = Field()
+    lat = Field()
+    lon = Field()
+    timezone = Field()
+    org = Field()
 
 class PropertyItem(Item):
 	vendor = Field()
@@ -30,7 +30,9 @@ class PropertyItem(Item):
 	posted_date = Field()
 
 class HouseItem(Item):
+    key = Field()
 	vendor = Field()
+    property_id = Field()
 	link = Field()
 	crawled_date = Field()
 	posted_date = Field()

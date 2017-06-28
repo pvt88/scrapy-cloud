@@ -33,7 +33,7 @@ class RandomProxyMiddleware(object):
                     proxy_address, len(self.proxies)))
 
         request.meta['proxy'] = proxy_address
-        request.meta['download_timeout'] = 60
+        request.meta['download_timeout'] = 10
 
     def process_exception(self, request, exception, spider):
         if 'proxy' not in request.meta:
