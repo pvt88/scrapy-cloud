@@ -17,13 +17,13 @@ NEWSPIDER_MODULE = 'cobweb.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 
-REFERER_LIST = load_list_from_file('/cobweb/resources/referers.txt')
+#REFERER_LIST = load_list_from_file('/cobweb/resources/referers.txt')
 
-USER_AGENT_LIST = load_list_from_file('/cobweb/resources/useragents.txt')
+#USER_AGENT_LIST = load_list_from_file('/cobweb/resources/useragents.txt')
 
 # Proxy list containing entries like
 # http://host1:port1
-HTTP_PROXIES = load_list_from_file('/cobweb/resources/prod_proxies.txt')
+#HTTP_PROXIES = load_list_from_file('/cobweb/resources/prod_proxies.txt')
 #HTTP_PROXIES = load_list_from_file('/cobweb/resources/test_proxies.txt')
 
 # Retry many times since proxies often fail
@@ -64,11 +64,11 @@ COOKIES_ENABLED=False
 # Enable or disable downloader middlewares or your custom middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    'cobweb.middlewares.random_useragent.RandomUserAgentMiddleware': 400,
-    'cobweb.middlewares.random_proxy.RandomProxyMiddleware': 420,
-    'cobweb.middlewares.retry.RetryMiddleware':90,
-    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': 100,
-    'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110
+    #'cobweb.middlewares.random_useragent.RandomUserAgentMiddleware': 400,
+    #'cobweb.middlewares.random_proxy.RandomProxyMiddleware': 420,
+    #'cobweb.middlewares.retry.RetryMiddleware':90,
+    #'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': 100,
+    #'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110
 }
 
 # Enable or disable extensions
@@ -93,7 +93,7 @@ MONGODB_CREDENTIALS = {
     "password": "your_password"
 }
 
-AWS_ACCESS_KEY_ID = '<aws access key id>'
-AWS_SECRET_ACCESS_KEY = '<aws secret access key>'
+AWS_ACCESS_KEY_ID = ''
+AWS_SECRET_ACCESS_KEY = ''
 DYNAMODB_PIPELINE_REGION_NAME = 'us-west-2'
-DYNAMODB_PIPELINE_TABLE_NAME = 'my_table'
+DYNAMODB_PIPELINE_TABLE_NAME = 'scrapy_ip'

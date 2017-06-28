@@ -15,6 +15,13 @@ class IPSpider(scrapy.Spider):
         item = IPItem()
         item["status"] = response.status
         item['date'] = datetime.utcnow()
-        item['json'] = json.loads(response.body_as_unicode())
+
+        json = json.loads(response.body_as_unicode())
+        item['lat'] = json.get('lat')
+        item['lon'] = json.get('lon')
+        item['timezone'] = json.get('timezone')
+        item['org'] = json.get('org')
+
+        #item['json'] = json.loads(response.body_as_unicode())
 
         yield item
