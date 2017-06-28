@@ -45,12 +45,17 @@ class RealEstateSpider(scrapy.Spider):
         item["property_size_unit"] = extract_unit(property_size)
 
         #TODO: There might be more correct information about the size in the description
-        item["price_per_sqm"] = item["price"] / item["property_size"] 
+        if item["price"] and item["property_size"]:
+            item["price_per_sqm"] = item["price"] / item["property_size"]
+        else:
+            item["price_per_sqm"] = None
 
         item["area"] = strip(selector.xpath(u'//span[@class="diadiem-title mar-right-15"]//a/@href').extract())
         addresses = selector.xpath(u'//div[contains(text(),"\u0110\u1ecba ch\u1ec9")]/following::div[1]//text()').extract()
         if addresses:
             item["address"] = addresses[0].strip()
+        else:
+            item["address"] = None
         
         #Property Specifications
         item["num_floors"] = extract_number(strip(selector.xpath(u'//div[contains(text(),"S\u1ed1 t\u1ea7ng")]/following::div[1]//text()').extract()))
@@ -65,11 +70,15 @@ class RealEstateSpider(scrapy.Spider):
         #Media Information
         images = selector.xpath(u'//div[@class="list-img"]//img//@src').extract()
         if images:
-            item["images"] = images    
+            item["images"] = images
+        else:
+            item["images"] = None
             
         videos = selector.xpath(u'//div[@id="LeftMainContent__productDetail_ltVideo"]//iframe//@src').extract()
         if videos:
-            item["videos"] = videos 
+            item["videos"] = videos
+        else:
+            item["videos"] = None
 
         #Seller Information
         item["listing_type"] = strip(selector.xpath(u'//div[contains(text(),"Lo\u1ea1i tin rao")]/following::div[1]//text()').extract())
@@ -78,6 +87,8 @@ class RealEstateSpider(scrapy.Spider):
         item["contact_mobile"] = strip(selector.xpath(u'//div[contains(text(),"Mobile")]/following::div[1]//text()').extract())
         if len(addresses) == 2:
             item["contact_address"] = addresses[1].strip()
+        else:
+            item["contact_address"] = None
 
         #Project Information
         item["project_name"] = strip(selector.xpath(u'//div[contains(text(),"T\xean d\u1ef1 \xe1n")]/following::div[1]//text()').extract())
