@@ -5,27 +5,31 @@ Available commands:
     deploy                    Deploy the scrapy server to EC2 instances
     file_transfer             Transfer files from local machine to remote EC2 instances
     install_dependencies      Downloads and configures all dependencies
-    set_hosts                 Gets the list of all available hosts
-    setup_git_repo            Clones the repo from github and installs the required package
-    start_scrapyd             Starts the scrapy server
+    get_hosts                 Gets the list of all available hosts dynamically
+    kill_scrapyd              Kills the scrapy server
     production                Set up the production env
+    start_scrapyd             Starts the scrapy server
 
 
 Examples:
-    - fab production instance
+    - fab production create_instance
         - Creates a new EC2 instance form a blank AMI image.
 
-    - fab production deploy
+    - fab production get_hosts deploy
         - Deploy the scrapy server to EC2 instances
 
 """
 import config
 import time
 
-from fabric.api import env, run, cd, put, abort, prompt
+from fabric.api import env, run, cd, put, abort, prompt, local, settings
 
 from aws import AWS
 from notifications import Notification
+
+GITHUB_URL = 'https://github.com/'
+GITHUB_USER = 'pvt88/'
+GITHUB_REPO = 'scrapy-cloud'
 
 
 def create_instance():
@@ -40,16 +44,24 @@ def deploy():
     Public function that deploys a fresh scrapy server to an EC2 instance.
     """
     env.release_stamp = time.strftime('%Y%m%d%H%M%S')
-    set_hosts()
     install_dependencies()
-    setup_git_repo()
+
+    # Clone the repo from github and install the required packages
+    _init_git()
+    _install_requirements()
+
+    # Transfer the local resource files to the remote machines
+    local = '~/scrapy-cloud/cobweb/resources/'
+    remote = 'scrapy-cloud/cobweb'
+    file_transfer(localpath=local, remotepath=remote)
+
+    # Start the scrapyd
     start_scrapyd()
 
 
 def file_transfer(localpath, remotepath):
     put(localpath, remotepath, use_sudo=True)
     Notification('Successfully transferring configs file from local to remote machines').info()
-
 
 
 def install_dependencies():
@@ -63,38 +75,41 @@ def install_dependencies():
         libldap2-dev libsasl2-dev libffi-dev', env.hosts)
 
 
-def set_hosts():
+def re_deploy():
+    """
+    Public function that re deploys the scrapy server to EC2 instances.
+    """
+    env.release_stamp = time.strftime('%Y%m%d%H%M%S')
+    _update_git()
+    _install_requirements()
+
+    kill_scrapyd()
+    time.sleep(10)
+    start_scrapyd()
+
+
+def get_hosts():
     """
     Get the list of running EC2 instances from AWS
     """
     env.hosts = _get_all_instances()
 
 
-def setup_git_repo():
-    """
-    Public function that clones the project from git, installs all requirements.txt
-    and transfer the config files from local machine over to host machines
-    """
-    # Clone the repo from github and install the required packages
-    repo = 'https://github.com/pvt88/scrapy-cloud.git'
-    Notification('Cloning the project from {}'.format(repo)).info()
-    run('git clone ' + repo, env.hosts)
-    run('sudo pip install -q -r scrapy-cloud/requirements.txt', env.hosts)
-
-    # Transfer the local resource files to the remote machines
-    local = '~/scrapy-cloud/cobweb/resources/'
-    remote = 'scrapy-cloud/cobweb'
-    file_transfer(localpath=local, remotepath=remote)
-
-
 def start_scrapyd():
     """
     Public function that start a scrapy server
     """
-    with cd('scrapy-cloud'):
+    with cd(GITHUB_REPO):
         _runbg('scrapyd')
 
     Notification('Successfully launch a scrapy server at {}:6800'.format(env.host_string)).info()
+
+
+def kill_scrapyd():
+    with settings(warn_only=True):
+        run('sudo kill `sudo lsof -t -i:6800`')
+
+        Notification('Successfully kill a scrapy server at {}:6800'.format(env.host_string)).info()
 
 
 def production():
@@ -157,10 +172,11 @@ def _create_instance():
 
     Notification('Instance %s was created successfully' % instance.id).info()
     # A new instance take a little while to allow connections so sleep for x seconds.
-    Notification('Sleeping for %s seconds before attempting to connect...' % 30).info()
-    time.sleep(30)
+    Notification('Sleeping for %s seconds before attempting to connect...' % 20).info()
+    time.sleep(20)
 
     return instance.public_dns_name
+
 
 def _get_all_instances():
     try:
@@ -176,9 +192,35 @@ def _get_all_instances():
             # build the user@hostname string for ssh to be used later
             instances.append('ubuntu@' + str(host.public_dns_name))
 
-    Notification('Getting {} instances:\n{}'.format(len(instances), "\n".join(instances))).info()
+    Notification('Got {} instances:\n{}'.format(len(instances), "\n".join(instances))).info()
 
     return instances
 
+
+def _install_requirements():
+    with cd(GITHUB_REPO):
+        run('sudo pip install -q -r requirements.txt', env.hosts)
+
+
+def _init_git():
+    repo = GITHUB_URL + GITHUB_USER + GITHUB_REPO + '.git'
+    Notification('Cloning the project from {}'.format(repo)).info()
+    run('git clone -q ' + repo, env.hosts)
+
+
+def _update_git():
+    with cd(GITHUB_REPO):
+        current_branch = local('git rev-parse --abbrev-ref HEAD', capture=True)
+        current_commit = local("git log -n 1 --format=%H", capture=True)
+
+    Notification('Pulling commit {} from the branch {} !'.format(current_commit, current_branch)).info()
+
+    with cd(GITHUB_REPO):
+        run('git checkout {}'.format(current_branch), env.hosts)
+        run('git pull', env.hosts)
+        run('git reset --hard %s' % (GITHUB_REPO, current_commit), env.hosts)
+
+
 def _runbg(cmd):
     return run('dtach -n `mktemp -u /tmp/dtach.XXXX` %s' % (cmd), env.hosts)
+
