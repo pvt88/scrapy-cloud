@@ -7,7 +7,6 @@ from cobweb.utilities import extract_number, extract_unit, extract_property_id, 
 class SearchSpider(scrapy.Spider):
     name = 'search_spider'
 
-    
     def __init__(self, vendor=None, crawl_url=None, max_depth=2, start_index=1, *args, **kwargs):
         super(SearchSpider, self).__init__(*args, **kwargs)
         self.vendor = vendor
