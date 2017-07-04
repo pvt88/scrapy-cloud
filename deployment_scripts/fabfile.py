@@ -218,7 +218,7 @@ def _update_git():
     with cd(GITHUB_REPO):
         run('git checkout {}'.format(current_branch), env.hosts)
         run('git pull', env.hosts)
-        run('git reset --hard %s' % (GITHUB_REPO, current_commit), env.hosts)
+        run('git reset --hard {}'.format(current_commit), env.hosts)
 
 
 def _runbg(cmd):
