@@ -74,3 +74,6 @@ scrapy.cfg
 setup.py
 twistd*
 .idea/
+
+#fabric
+deployment_scripts/config.py

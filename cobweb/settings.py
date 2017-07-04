@@ -78,15 +78,15 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   #'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
-   'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
+   'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
+   #'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
 }
 
 # This is just for development. Don't do this on production. Put your credentials elsewhere.
 MONGODB_CREDENTIALS = {
     "server": "localhost",
     "port": 27017,
-    "database": "real_estate",
+    "database": "real_estate_production",
     "username": "your_username",
     "password": "your_password"
 }

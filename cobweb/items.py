@@ -30,9 +30,9 @@ class PropertyItem(Item):
 	posted_date = Field()
 
 class HouseItem(Item):
-    key = Field()
+	key = Field()
 	vendor = Field()
-    property_id = Field()
+	property_id = Field()
 	link = Field()
 	crawled_date = Field()
 	posted_date = Field()
