@@ -8,6 +8,7 @@ Available commands:
     get_hosts                 Gets the list of all available hosts dynamically
     kill_scrapyd              Kills the scrapy server
     production                Set up the production env
+    local                     Set up the local env
     start_scrapyd             Starts the scrapy server
 
 
@@ -22,7 +23,7 @@ Examples:
 import config
 import time
 
-from fabric.api import env, run, cd, put, abort, prompt, local, settings
+from fabric.api import env, run, cd, put, abort, prompt, local, settings, prefix
 
 from aws import AWS
 from notifications import Notification
@@ -60,6 +61,9 @@ def deploy():
     scrapyd_deploy()
 
 def file_transfer(localpath, remotepath):
+    """
+    Transfer files from local machine to remote EC2 instances
+    """
     put(localpath, remotepath, use_sudo=True)
     Notification('Successfully transferring configs file from local to remote machines').info()
 
@@ -116,16 +120,54 @@ def scrapyd_deploy():
 
 
 def kill_scrapyd():
+    """
+    Public function that kill a scrapy server
+    """
     with settings(warn_only=True):
         run('sudo kill `sudo lsof -t -i:6800`')
 
         Notification('Successfully kill a scrapy server at {}:6800'.format(env.host_string)).info()
 
 
+def deploy_local():
+    with cd(GITHUB_REPO):
+        with prefix('workon scrapy'):
+            _runbg('scrapyd')
+            Notification('Successfully launch a scrapy server with {}'.format()).info()
+
+    Notification('Sleeping for {} seconds before attempting to deploy spider...'.format(30)).info()
+    time.sleep(30)
+
+    for url in env.spider_param_crawl_urls:
+        response = _curl(env.spider_param_vendor, url, env.spider_param_start_index)
+        Notification('Successfully deploy spider with response={}'.format(response)).info()
+        time.sleep(5)
+
+
 def production():
     _base_environment_settings()
     env.branch = "master"
     env.environment = 'production'
+
+
+def local():
+    _base_environment_settings()
+    env.environment = 'local'
+
+    env.spider_param_vendor = config.SPIDER_PARAM_VENDOR
+    env.spider_param_start_index = config.SPIDER_PARAM_START_INDEX
+    env.spider_param_crawl_urls = config.SPIDER_PARAM_CRAWL_URLS
+
+
+def _curl(vendor, crawl_url, start_index):
+    return local('curl http://localhost:6800/schedule.json \
+                        -d project=cobweb \
+                        -d spider=search_spider \
+                        -d max_depth=510 \
+                        -d vendor={} \
+                        -d crawl_url={} \
+                        -d start_index={}'.format(vendor, crawl_url, start_index)
+                 , capture=True)
 
 
 def _base_environment_settings():
@@ -162,12 +204,8 @@ def _create_instance():
     aws_instance_type = prompt("What instance type do you want to create? ", default=env.ec2_instance)
     aws_instance_key_name = prompt("Enter your key pair name (don't include .pem extension)", default=env.aws_key_name)
 
-    BUILD_SERVER = {
-        'image_id': aws_ami,
-        'instance_type': aws_instance_type,
-        'security_groups': [aws_security_groups],
-        'key_name': aws_instance_key_name
-    }
+    BUILD_SERVER = dict(image_id=aws_ami, instance_type=aws_instance_type, security_groups=[aws_security_groups],
+                        key_name=aws_instance_key_name)
 
     Notification('Spinning up the instance...').info()
 
@@ -230,7 +268,9 @@ def _update_git():
         run('git pull', env.hosts)
         run('git reset --hard {}'.format(current_commit), env.hosts)
 
-
 def _runbg(cmd):
-    return run('dtach -n `mktemp -u /tmp/dtach.XXXX` %s' % (cmd), env.hosts)
+    if env.environment == 'local':
+        return local('%s &' % cmd)
+    else:
+        return run('dtach -n `mktemp -u /tmp/dtach.XXXX` %s' % cmd, env.hosts)
 
