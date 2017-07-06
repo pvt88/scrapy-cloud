@@ -32,13 +32,15 @@ class SearchSpider(scrapy.Spider):
             if subdomain:
                 item["link"] = self.vendor + subdomain[0].strip()
 
-            item["property_id"] =  extract_property_id(item["link"])
+            item["property_id"] = extract_property_id(item["link"])
         
             price = strip(row.css(u'.product-price::text').extract())
+            item["property_price_raw"] = price
             item["property_price"] = extract_number(price)
             item["property_price_unit"] = extract_unit(price)
 
             property_size = strip(row.css(u'.product-area::text').extract())
+            item["property_size_raw"] = property_size
             item["property_size"] = extract_number(property_size)
             item["property_size_unit"] = extract_unit(property_size)
 

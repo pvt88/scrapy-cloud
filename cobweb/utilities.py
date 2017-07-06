@@ -16,9 +16,9 @@ def strip(ls):
 
 def extract_number(str):
 	if str:
-		number = ''.join(re.findall(r'\d+', str))
+		number = ''.join(re.findall(r'\d*\.?\,?\d+', str))
 		if number:
-			return float(number)
+			return float(number.replace(',','.'))
 
 def extract_unit(str):
 	if str:

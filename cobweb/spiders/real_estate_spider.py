@@ -39,10 +39,12 @@ class RealEstateSpider(scrapy.Spider):
         item["description"] = " ".join([str.strip() for str in response.css('.pm-content .pm-desc::text').extract()])
         
         price = response.css('.kqchitiet .gia-title strong::text').extract()[0].strip()
+        item["price_raw"] = price
         item["price"] = extract_number(price)
         item["price_unit"] = extract_unit(price)
 
         property_size = response.css('.kqchitiet .gia-title strong::text').extract()[1].strip()
+        item["property_size_raw"] = property_size
         item["property_size"] = extract_number(property_size)
         item["property_size_unit"] = extract_unit(property_size)
 
