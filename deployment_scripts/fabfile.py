@@ -57,7 +57,7 @@ def deploy():
 
     # Start the scrapyd
     start_scrapyd()
-
+    scrapyd_deploy()
 
 def file_transfer(localpath, remotepath):
     put(localpath, remotepath, use_sudo=True)
@@ -86,7 +86,7 @@ def re_deploy():
     kill_scrapyd()
     time.sleep(10)
     start_scrapyd()
-
+    scrapyd_deploy()
 
 def get_hosts():
     """
@@ -103,6 +103,16 @@ def start_scrapyd():
         _runbg('scrapyd')
 
     Notification('Successfully launch a scrapy server at {}:6800'.format(env.host_string)).info()
+
+
+def scrapyd_deploy():
+    """
+    Public function that start a scrapy server
+    """
+    with cd(GITHUB_REPO):
+        run('scrapyd-deploy local-target')
+
+    Notification('Successfully deploy the target!').info()
 
 
 def kill_scrapyd():
