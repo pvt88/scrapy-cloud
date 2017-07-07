@@ -23,7 +23,7 @@ Examples:
 import config
 import time
 
-from fabric.api import env, run, cd, put, abort, prompt, local, settings, prefix
+from fabric.api import env, run, cd, lcd, put, abort, prompt, local, settings, prefix
 
 from aws import AWS
 from notifications import Notification
@@ -31,7 +31,7 @@ from notifications import Notification
 GITHUB_URL = 'https://github.com/'
 GITHUB_USER = 'pvt88/'
 GITHUB_REPO = 'scrapy-cloud'
-
+TEMP_SLEEP = 15
 
 def create_instance():
     """
@@ -58,7 +58,9 @@ def deploy():
 
     # Start the scrapyd
     start_scrapyd()
+    # Deploy the target
     scrapyd_deploy()
+
 
 def file_transfer(localpath, remotepath):
     """
@@ -92,6 +94,7 @@ def re_deploy():
     start_scrapyd()
     scrapyd_deploy()
 
+
 def get_hosts():
     """
     Get the list of running EC2 instances from AWS
@@ -108,6 +111,14 @@ def start_scrapyd():
 
     Notification('Successfully launch a scrapy server at {}:6800'.format(env.host_string)).info()
 
+def scrapyd_deploy():
+    """
+    Public function that start a scrapy server
+    """
+    with cd(GITHUB_REPO):
+        run('scrapyd-deploy local-target')
+
+    Notification('Successfully launch a scrapy server at {}:6800'.format(env.host_string)).info()
 
 def scrapyd_deploy():
     """
@@ -124,24 +135,31 @@ def kill_scrapyd():
     Public function that kill a scrapy server
     """
     with settings(warn_only=True):
-        run('sudo kill `sudo lsof -t -i:6800`')
+        if env.environment == 'development':
+            local('sudo kill `sudo lsof -t -i:6800`')
+        else:
+            run('sudo kill `sudo lsof -t -i:6800`', env.hosts)
 
-        Notification('Successfully kill a scrapy server at {}:6800'.format(env.host_string)).info()
+        Notification('Successfully kill a scrapy server!').info()
 
 
-def deploy_local():
+def deploy_local_scrapyd():
     with cd(GITHUB_REPO):
-        with prefix('workon scrapy'):
+        with prefix('. /usr/local/bin/virtualenvwrapper.sh; workon scrapy'):
             _runbg('scrapyd')
-            Notification('Successfully launch a scrapy server with {}'.format()).info()
+            Notification('Successfully launch a local scrapy server!').info()
+            local('scrapyd-deploy local-target')
 
-    Notification('Sleeping for {} seconds before attempting to deploy spider...'.format(30)).info()
-    time.sleep(30)
+    Notification('Sleeping for {} seconds before attempting to deploy spider...'.format(TEMP_SLEEP)).info()
+    time.sleep(TEMP_SLEEP)
 
-    for url in env.spider_param_crawl_urls:
-        response = _curl(env.spider_param_vendor, url, env.spider_param_start_index)
-        Notification('Successfully deploy spider with response={}'.format(response)).info()
-        time.sleep(5)
+
+def deploy_local_spider():
+    with lcd('~/' + GITHUB_REPO + '/cobweb'):
+        for url in env.spider_param_crawl_urls:
+            response = _curl(env.spider_param_vendor, url, env.spider_param_start_index)
+            Notification('Deploy spider with response={}'.format(response)).info()
+            time.sleep(5)
 
 
 def production():
@@ -150,9 +168,9 @@ def production():
     env.environment = 'production'
 
 
-def local():
+def development():
     _base_environment_settings()
-    env.environment = 'local'
+    env.environment = 'development'
 
     env.spider_param_vendor = config.SPIDER_PARAM_VENDOR
     env.spider_param_start_index = config.SPIDER_PARAM_START_INDEX
@@ -220,8 +238,8 @@ def _create_instance():
 
     Notification('Instance %s was created successfully' % instance.id).info()
     # A new instance take a little while to allow connections so sleep for x seconds.
-    Notification('Sleeping for %s seconds before attempting to connect...' % 20).info()
-    time.sleep(20)
+    Notification('Sleeping for {} seconds before attempting to connect...'.format(TEMP_SLEEP)).info()
+    time.sleep(TEMP_SLEEP)
 
     return instance.public_dns_name
 
@@ -268,9 +286,10 @@ def _update_git():
         run('git pull', env.hosts)
         run('git reset --hard {}'.format(current_commit), env.hosts)
 
+
 def _runbg(cmd):
-    if env.environment == 'local':
-        return local('%s &' % cmd)
+    if env.environment == 'development':
+        return local('dtach -n `mktemp -u /tmp/dtach.XXXX` %s' % cmd, capture=True)
     else:
         return run('dtach -n `mktemp -u /tmp/dtach.XXXX` %s' % cmd, env.hosts)
 
