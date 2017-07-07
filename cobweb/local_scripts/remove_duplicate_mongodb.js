@@ -76,3 +76,8 @@ db.property_list_rental.aggregate([
 });
 
 db.property_list_rental.bulkWrite(ops);
+
+
+db.property_list_rental.find().forEach(function(obj){
+   db.property_list.insert(obj)
+})

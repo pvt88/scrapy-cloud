@@ -22,6 +22,7 @@ class ProxyItem(Item):
 
 class PropertyItem(Item):
 	vendor = Field()
+	type = Field()
 	created_date = Field()
 	last_crawled_date = Field()
 	last_indexed_date = Field()

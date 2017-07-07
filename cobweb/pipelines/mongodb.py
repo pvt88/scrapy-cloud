@@ -48,10 +48,11 @@ class MongoDBPipeline(object):
                 log.msg("Added House Item to database!", level=log.DEBUG, spider=spider)
 
             if isinstance(item, PropertyItem):
-                self.collection = self.db['property_list_rental']
+                self.collection = self.db['property_list']
 
                 self.collection.update({"property_id": item['property_id'],
-                                        "vendor": item['vendor']},
+                                        "vendor": item['vendor'],
+                                        "type": item['type']},
                                        {"$setOnInsert": {"created_date": item['created_date'],
                                                          "last_indexed_date": item['last_indexed_date'],
                                                          "property_size_raw": item['property_size_raw'],
@@ -68,7 +69,8 @@ class MongoDBPipeline(object):
                                        upsert=True)
 
                 self.collection.update({"property_id": item['property_id'],
-                                        "vendor": item['vendor']},
+                                        "vendor": item['vendor'],
+                                        "type": item['type']},
                                        {"$set": {"last_indexed_date": item['last_indexed_date'],
                                                  "property_size_raw": item['property_size_raw'],
                                                  "property_size": item['property_size'],

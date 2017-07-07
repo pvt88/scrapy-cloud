@@ -30,7 +30,7 @@ RANDOM_PROXY_MODE = 1
 # Retry many times since proxies often fail
 RETRY_TIMES = 1000
 # Retry on most error codes since proxies fail for different reasons
-RETRY_HTTP_CODES = [500, 503, 504, 514, 400, 403, 404, 408]
+RETRY_HTTP_CODES = [500, 503, 504, 514, 400, 401, 403, 404, 408]
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS=32
