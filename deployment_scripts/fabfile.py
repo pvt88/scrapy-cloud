@@ -156,7 +156,7 @@ def deploy_local_scrapyd():
 
 def deploy_local_spider():
     with lcd('~/' + GITHUB_REPO + '/cobweb'):
-        for url in env.spider_param_crawl_urls:
+        for url in env.spider_param_crawl_urls_2:
             response = _curl(env.spider_param_vendor, url, env.spider_param_start_index)
             Notification('Deploy spider with response={}'.format(response)).info()
             time.sleep(5)
@@ -174,7 +174,8 @@ def development():
 
     env.spider_param_vendor = config.SPIDER_PARAM_VENDOR
     env.spider_param_start_index = config.SPIDER_PARAM_START_INDEX
-    env.spider_param_crawl_urls = config.SPIDER_PARAM_CRAWL_URLS
+    env.spider_param_crawl_urls_1 = config.SPIDER_PARAM_CRAWL_URLS_1
+    env.spider_param_crawl_urls_2 = config.SPIDER_PARAM_CRAWL_URLS_2
 
 
 def _curl(vendor, crawl_url, start_index):
