@@ -16,7 +16,6 @@ class RandomProxyMiddleware(object):
     def __init__(self, settings):
         self.proxies = settings.get('RANDOM_PROXY_HTTP_PROXIES')
         self.mode = settings.get('RANDOM_PROXY_MODE')
-        self.cur_index = 0
 
         if self.proxies is None:
             raise KeyError('HTTP_PROXIES setting is missing')
@@ -30,8 +29,7 @@ class RandomProxyMiddleware(object):
             raise ValueError('No Proxy Left!!!')
 
         if self.mode == 2:
-            proxy_address = self.proxies[self.cur_index]
-            self.cur_index += 1
+            proxy_address = self.proxies[0]
         else:
             proxy_address = random.choice(self.proxies)
 

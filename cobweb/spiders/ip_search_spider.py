@@ -22,5 +22,5 @@ class IPSearchSpider(scrapy.Spider):
 
         if self.index < self.max_depth:
             self.index += 1
-            yield scrapy.Request(self.start_urls[0], callback=self.parse)
+            yield scrapy.Request(self.start_urls[0], dont_filter=True, callback=self.parse)
 
