@@ -5,7 +5,7 @@ from pymongo import MongoClient # pymongo>=3.2
 from scrapy.conf import settings
 from scrapy.exceptions import DropItem
 from scrapy import log
-from cobweb.items import HouseItem, PropertyItem
+from cobweb.items import HouseItem, PropertyItem, ProxyItem
 
 class MongoDBPipeline(object):
 
@@ -32,13 +32,18 @@ class MongoDBPipeline(object):
                 raise DropItem("Missing {}!".format(data))
 
         if valid:
-            if isinstance(item, HouseItem): 
+            if isinstance(item, ProxyItem):
+                self.collection = self.db['proxies']
+                self.collection.insert(dict(item))
+                log.msg("Added Proxy Item to database!", level=log.DEBUG, spider=spider)
+
+            if isinstance(item, HouseItem):
                 self.collection = self.db['houses']
                 self.collection.insert(dict(item))
                 log.msg("Added House Item to database!", level=log.DEBUG, spider=spider)
 
             if isinstance(item, PropertyItem):
-                self.collection = self.db['property_list']
+                self.collection = self.db['property_list_rental']
 
                 self.collection.update({"property_id": item['property_id'],
                                         "vendor": item['vendor']},
