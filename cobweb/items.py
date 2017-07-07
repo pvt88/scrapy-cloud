@@ -15,6 +15,11 @@ class IPItem(Item):
     timezone = Field()
     org = Field()
 
+class ProxyItem(Item):
+    status = Field()
+    date = Field()
+    ip = Field()
+
 class PropertyItem(Item):
 	vendor = Field()
 	created_date = Field()
