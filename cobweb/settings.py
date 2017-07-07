@@ -9,6 +9,7 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 from cobweb.utilities import load_list_from_file
+import cobweb.resources.configs as configs
 
 BOT_NAME = 'Googlebot'
 
@@ -53,19 +54,12 @@ DOWNLOADER_MIDDLEWARES = {
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
-   #'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
+   'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
 }
 
-# This is just for development. Don't do this on production. Put your credentials elsewhere.
-MONGODB_CREDENTIALS = {
-    "server": "localhost",
-    "port": 27017,
-    "database": "real_estate_production",
-    "username": "your_username",
-    "password": "your_password"
-}
+MONGODB_CREDENTIALS = configs.MONGODB_CREDENTIALS
 
-AWS_ACCESS_KEY_ID = ''
-AWS_SECRET_ACCESS_KEY = '/'
-DYNAMODB_PIPELINE_REGION_NAME = 'us-west-2'
-DYNAMODB_PIPELINE_TABLE_NAME = ''
+AWS_ACCESS_KEY_ID = configs.AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY = configs.AWS_SECRET_ACCESS_KEY
+DYNAMODB_PIPELINE_REGION_NAME = configs.DYNAMODB_PIPELINE_REGION_NAME
+DYNAMODB_PIPELINE_TABLE_NAME = configs.DYNAMODB_PIPELINE_TABLE_NAME

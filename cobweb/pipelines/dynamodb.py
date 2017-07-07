@@ -1,6 +1,7 @@
 import datetime
 import boto3
 from decimal import Decimal
+from cobweb.items import HouseItem, PropertyItem, ProxyItem
 
 class DynamoDBPipeline(object):
 
@@ -51,8 +52,9 @@ class DynamoDBPipeline(object):
         self.table = None
 
     def process_item(self, item, spider):
-        self.table.put_item(
-            TableName=self.table_name,
-            Item={k: self.encoder(v) for k, v in item.items()},
-        )
-        return item
+        if isinstance(item, HouseItem):
+            self.table.put_item(
+                TableName=self.table_name,
+                Item={k: self.encoder(v) for k, v in item.items()},
+            )
+            return item

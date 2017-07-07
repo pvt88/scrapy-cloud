@@ -34,7 +34,12 @@ class MongoDBPipeline(object):
         if valid:
             if isinstance(item, ProxyItem):
                 self.collection = self.db['proxies']
-                self.collection.insert(dict(item))
+                self.collection.update({"ip": item['ip']},
+                                       {"$setOnInsert": {"date": item['date'],
+                                                         "status": item['status']
+                                                         },
+                                        },
+                                       upsert=True)
                 log.msg("Added Proxy Item to database!", level=log.DEBUG, spider=spider)
 
             if isinstance(item, HouseItem):
