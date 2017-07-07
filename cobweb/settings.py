@@ -16,13 +16,16 @@ BOT_NAME = 'Googlebot'
 SPIDER_MODULES = ['cobweb.spiders']
 NEWSPIDER_MODULE = 'cobweb.spiders'
 
-REFERER_LIST = load_list_from_file('/cobweb/resources/referers.txt')
 
+# Settings for RandomUserAgentMiddleware
+REFERER_LIST = load_list_from_file('/cobweb/resources/referers.txt')
 USER_AGENT_LIST = load_list_from_file('/cobweb/resources/useragents.txt')
 
-# Proxy list containing entries like
-# http://host1:port1
-HTTP_PROXIES = load_list_from_file('/cobweb/resources/prod_proxies.txt')
+# Settings for RandomProxyMiddleware
+# Proxy list containing entries like <http://host1:port1>
+RANDOM_PROXY_HTTP_PROXIES = load_list_from_file('/cobweb/resources/prod_proxies.txt')
+# Mode to pick the next proxy: 1. Randomly 2. In the order in the proxy list
+RANDOM_PROXY_MODE = 1
 
 # Retry many times since proxies often fail
 RETRY_TIMES = 100
@@ -54,7 +57,7 @@ DOWNLOADER_MIDDLEWARES = {
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
-   'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
+   #'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
 }
 
 MONGODB_CREDENTIALS = configs.MONGODB_CREDENTIALS
