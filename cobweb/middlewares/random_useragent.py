@@ -10,7 +10,7 @@ import logging
 
 from scrapy.conf import settings
 
-log = logging.getLogger('scrapy.middlewares')
+log = logging.getLogger('cobweb.scrapy.middlewares.RandomUserAgentMiddleware')
 
 class RandomUserAgentMiddleware(object):
     def process_request(self, request, spider):

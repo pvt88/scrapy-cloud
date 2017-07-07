@@ -16,11 +16,11 @@ class IPSpider(scrapy.Spider):
         item["status"] = response.status
         item['date'] = datetime.utcnow()
 
-        json = json.loads(response.body_as_unicode())
-        item['lat'] = json.get('lat')
-        item['lon'] = json.get('lon')
-        item['timezone'] = json.get('timezone')
-        item['org'] = json.get('org')
+        obj = json.loads(response.body_as_unicode())
+        item['lat'] = obj.get('lat')
+        item['lon'] = obj.get('lon')
+        item['timezone'] = obj.get('timezone')
+        item['org'] = obj.get('org')
 
         #item['json'] = json.loads(response.body_as_unicode())
 

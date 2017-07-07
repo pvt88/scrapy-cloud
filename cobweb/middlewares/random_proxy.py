@@ -10,7 +10,7 @@ import logging
 
 from scrapy.conf import settings
 
-log = logging.getLogger('scrapy.middlewares')
+log = logging.getLogger('cobweb.scrapy.middlewares.RandomProxyMiddleware')
 
 class RandomProxyMiddleware(object):
     def __init__(self, settings):
@@ -29,8 +29,7 @@ class RandomProxyMiddleware(object):
 
         proxy_address = random.choice(self.proxies)
 
-        log.debug('Using proxy <%s>, %d proxies left' % (
-                    proxy_address, len(self.proxies)))
+        log.debug('Using proxy <%s>' % (proxy_address))
 
         request.meta['proxy'] = proxy_address
         request.meta['download_timeout'] = 10
@@ -45,5 +44,5 @@ class RandomProxyMiddleware(object):
         except KeyError:
             pass
 
-        log.info('Removing failed proxy <%s>, %d proxies left' % (
+        log.debug('Removing failed proxy <%s>, %d proxies left' % (
                     proxy, len(self.proxies)))
