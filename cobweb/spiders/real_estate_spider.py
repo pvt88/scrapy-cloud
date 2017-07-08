@@ -17,7 +17,7 @@ class RealEstateSpider(scrapy.Spider):
         self.vendor = vendor
         for url in crawl_url.split(','):
             log.debug('Crawling urls={}'.format(url))
-            self.start_urls.append(url)
+            self.start_urls.append(url.replace('http://', 'https://'))
 
     def parse(self, response):
         if not isinstance(response, scrapy.http.response.html.HtmlResponse): 
