@@ -9,6 +9,7 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 from cobweb.utilities import load_list_from_file
+
 import cobweb.resources.configs as configs
 
 BOT_NAME = 'Googlebot'

@@ -45,7 +45,7 @@ class RandomProxyMiddleware(object):
         proxy = request.meta['proxy']
         try:
             self.proxies.remove(proxy)
-        except KeyError:
+        except ValueError:
             pass
 
         log.debug('Removing failed proxy <%s>, %d proxies left' % (

@@ -1,8 +1,11 @@
 import scrapy
+import logging
 
 from datetime import datetime
 from cobweb.items import HouseItem
 from cobweb.utilities import strip, extract_number, extract_unit, extract_property_id
+
+log = logging.getLogger('cobweb.scrapy.spiders.RealEstateSpider')
 
 class RealEstateSpider(scrapy.Spider):
     SEPARATOR = '/'
@@ -12,14 +15,13 @@ class RealEstateSpider(scrapy.Spider):
     def __init__(self, vendor=None, crawl_url=None, *args, **kwargs):
         super(RealEstateSpider, self).__init__(*args, **kwargs)
         self.vendor = vendor
-        sub_domains = [s for s in crawl_url.split(self.SEPARATOR) if s]
-        self.area_subdomain = sub_domains[0]
-        self.property_subdomain = sub_domains[1]
-        self.start_urls = [self.vendor + self.SEPARATOR + self.area_subdomain + self.SEPARATOR + self.property_subdomain]
+        for url in crawl_url.split(','):
+            log.debug('Crawling urls={}'.format(url))
+            self.start_urls.append(url)
 
     def parse(self, response):
         if not isinstance(response, scrapy.http.response.html.HtmlResponse): 
-            response = scrapy.http.response.html.HtmlResponse(response.url,body=response.body)
+            response = scrapy.http.response.html.HtmlResponse(response.url, body=response.body)
 
         selector = scrapy.Selector(response)
 
@@ -31,8 +33,8 @@ class RealEstateSpider(scrapy.Spider):
         item['property_id'] = extract_property_id(item["link"])
         item['key'] = item['vendor'] + ":" + item['property_id']
         item['crawled_date'] = datetime.utcnow()
-        item['posted_date'] = response.css('.prd-more-info div::text').extract()[2].strip()
-        item["expire_date"] = response.css('.prd-more-info div::text').extract()[3].strip()
+        item['posted_date'] = response.css('.prd-more-info div::text').extract()[-3].strip()
+        item["expire_date"] = response.css('.prd-more-info div::text').extract()[-1].strip()
 
         #Property General Information
         item["title"] = response.css('.pm-title h1::text').extract()[0].strip()
