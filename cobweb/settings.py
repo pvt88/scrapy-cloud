@@ -8,6 +8,11 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
+import sys
+import os
+
+sys.path.insert(0, os.path.realpath('./'))
+
 from cobweb.utilities import load_list_from_file
 
 import cobweb.resources.configs as configs
@@ -39,7 +44,7 @@ RETRY_HTTP_CODES = [500, 503, 504, 514, 400, 401, 403, 404, 408]
 # Configure a delay for requests for the same website (default: 0)
 # See http://scrapy.readthedocs.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY=8
+DOWNLOAD_DELAY=5
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN=16
 #CONCURRENT_REQUESTS_PER_IP=16
@@ -51,14 +56,14 @@ COOKIES_ENABLED=False
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
     'cobweb.middlewares.random_useragent.RandomUserAgentMiddleware': 400,
-    'cobweb.middlewares.random_proxy.RandomProxyMiddleware': 600,
+    #'cobweb.middlewares.random_proxy.RandomProxyMiddleware': 600,
 }
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
-   #'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
+   #'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
+   'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
 }
 
 MONGODB_CREDENTIALS = configs.MONGODB_CREDENTIALS
