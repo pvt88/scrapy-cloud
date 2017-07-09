@@ -68,22 +68,22 @@ class MongoDBPipeline(object):
                                        },
                                        upsert=True)
 
-                # self.collection.update({"property_id": item['property_id'],
-                #                         "vendor": item['vendor'],
-                #                         "type": item['type']},
-                #                        {"$set": {"last_indexed_date": item['last_indexed_date'],
-                #                                  "property_size_raw": item['property_size_raw'],
-                #                                  "property_size": item['property_size'],
-                #                                  "property_size_unit": item['property_size_unit'],
-                #                                  "property_price_raw": item['property_price_raw'],
-                #                                  "property_price": item['property_price'],
-                #                                  "property_price_unit": item['property_price_unit'],
-                #                                  "property_area": item['property_area'],
-                #                                  "posted_date": item['posted_date'],
-                #                                  "link": item['link']
-                #                                  },
-                #                         },
-                #                        upsert=False)
+                self.collection.update({"property_id": item['property_id'],
+                                        "vendor": item['vendor'],
+                                        "type": item['type']},
+                                       {"$set": {"last_indexed_date": item['last_indexed_date'],
+                                                 "property_size_raw": item['property_size_raw'],
+                                                 "property_size": item['property_size'],
+                                                 "property_size_unit": item['property_size_unit'],
+                                                 "property_price_raw": item['property_price_raw'],
+                                                 "property_price": item['property_price'],
+                                                 "property_price_unit": item['property_price_unit'],
+                                                 "property_area": item['property_area'],
+                                                 "posted_date": item['posted_date'],
+                                                 "link": item['link']
+                                                 },
+                                        },
+                                       upsert=False)
 
                 log.msg("Update Property Item in MongoDB database!", level=log.DEBUG, spider=spider)
                 
