@@ -6,7 +6,6 @@ from datetime import datetime
 
 from scrapyd_api import ScrapydAPI
 from scrapy.conf import settings
-from fabric.colors import green as _green, yellow as _yellow, red as _red, blue as _blue, cyan as _cyan
 
 import cobweb.resources.configs as configs
 
@@ -48,7 +47,7 @@ def launch_spiders(num_spiders, server_id=0):
     while count < num_spiders:
         count += 1
         deploy(configs.OVERLORD_ITEMS_PER_SPIDER, server_id)
-        time.sleep(7)
+        time.sleep(5)
 
 
 def main(argv=None):
@@ -56,8 +55,8 @@ def main(argv=None):
     while total_spiders < configs.OVERLORD_TOTAL_SPIDERS:
         for server_id, _ in enumerate(scrapyds):
             running_spiders, finished_spiders = get_running_spiders(server_id)
-            Notification('{} - [Server {}]: There are {} spiders running and {} spiders finished!'.format(datetime.utcnow(), server_id, len(running_spiders),
-                                                                                        len(finished_spiders))).info()
+            Notification('{} - [Server {}]: spiders running {}, spiders finished {} and total spiders {} !'.format(datetime.utcnow(), server_id, len(running_spiders),
+                                                                                        len(finished_spiders), total_spiders)).info()
             if len(running_spiders) < configs.OVERLORD_MAX_PARALLEL_SPIDERS:
                 spiders_launching = configs.OVERLORD_MAX_PARALLEL_SPIDERS - len(running_spiders)
                 total_spiders = total_spiders + spiders_launching
@@ -65,7 +64,7 @@ def main(argv=None):
 
         time.sleep(configs.OVERLORD_SLEEP_WINDOW)
 
-    print(_red('Completed {} spiders!'.format(total_spiders)))
+    Notification('Completed {} spiders!'.format(total_spiders)).success()
 
 
 def get_running_spiders(server_id=0):
