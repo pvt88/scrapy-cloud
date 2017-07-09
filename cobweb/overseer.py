@@ -10,6 +10,7 @@ from fabric.colors import green as _green, yellow as _yellow, red as _red, blue 
 
 import cobweb.resources.configs as configs
 
+from deployment_scripts.notifications import Notification
 
 scrapyds = [ScrapydAPI(server) for server in configs.OVERLORD_SCRAPYD_URIS]
 
@@ -29,7 +30,8 @@ def deploy(max_items, server_id=0):
     links, property_ids, vendors, _ = zip(*ids)
 
     job_id = scrapyds[server_id].schedule('cobweb', 'real_estate_spider', vendor=vendors[0], crawl_url=','.join(links))
-    print(_cyan('Launched job={} on server={}'.format(job_id, configs.OVERLORD_SCRAPYD_URI[server_id])))
+
+    Notification('{} - [Server {}]: Launch job={}'.format(datetime.utcnow(), server_id, job_id)).success()
 
     collection.update({"vendor": vendors[0],
                        "property_id": {"$in": property_ids},
@@ -54,8 +56,8 @@ def main(argv=None):
     while total_spiders < configs.OVERLORD_TOTAL_SPIDERS:
         for server_id, _ in enumerate(scrapyds):
             running_spiders, finished_spiders = get_running_spiders(server_id)
-            print(_red('On server {}, there are {} spiders running and {} spiders finished so far!'.format(server_id, len(running_spiders),
-                                                                                        len(finished_spiders))))
+            Notification('{} - [Server {}]: There are {} spiders running and {} spiders finished!'.format(datetime.utcnow(), server_id, len(running_spiders),
+                                                                                        len(finished_spiders))).info()
             if len(running_spiders) < configs.OVERLORD_MAX_PARALLEL_SPIDERS:
                 spiders_launching = configs.OVERLORD_MAX_PARALLEL_SPIDERS - len(running_spiders)
                 total_spiders = total_spiders + spiders_launching
