@@ -67,7 +67,7 @@ class Overseer(object):
         finished = status['finished']
         now = datetime.utcnow()
         finished_times = [self._time_diff_in_minute(job['end_time'], job['start_time']) for job in finished]
-        avg_time = np.average(finished_times)
+        avg_time = int(np.average(finished_times))
 
         Notification('{} - [{}] \t Running Spiders = {}, Finished Spiders = {}, Average Runtime = {}'
                      .format(datetime.utcnow(),

@@ -66,7 +66,7 @@ def main(argv=None):
         except Exception as e:
             Notification('{} - [Exception]: {}'.format(datetime.utcnow(), e)).error()
 
-            time.sleep(5*sleep_window)
+            time.sleep(4*sleep_window)
             pass
 
         time.sleep(sleep_window)
