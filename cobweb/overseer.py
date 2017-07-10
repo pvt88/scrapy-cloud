@@ -1,80 +1,128 @@
-import pymongo
-import sys
 import time
+import numpy as np
+import pymongo
 
 from datetime import datetime
-
+from dateutil import parser
 from scrapyd_api import ScrapydAPI
-from scrapy.conf import settings
 
-import cobweb.resources.configs as configs
-
-from deployment_scripts.notifications import Notification
-
-scrapyds = [ScrapydAPI(server) for server in configs.OVERLORD_SCRAPYD_URIS]
+from notifications import Notification
 
 
-def deploy(max_items, server_id=0):
-    mongodb_credentials = settings.get('MONGODB_CREDENTIALS')
+class Overseer(object):
+    """
+    Overseer facilitate the deployment process of local spiders to a remote scrapyd server
 
-    connection = pymongo.MongoClient(
-        mongodb_credentials['server'],
-        mongodb_credentials['port']
-    )
-    db = connection[mongodb_credentials['database']]
-    collection = db['property_list']
-    cursor = collection.find({"last_crawled_date": None, "type": "sell"}).sort("created_date", pymongo.ASCENDING)[:max_items]
+    Available methods:
+        spawn_spiders           Create spider and deploy them to remote scrapyd server
+        get_status              Report the current status of the remote scrapyd server
 
-    ids = [(item['link'], item['property_id'], item['vendor'], item['type']) for item in cursor]
-    links, property_ids, vendors, _ = zip(*ids)
+    """
 
-    job_id = scrapyds[server_id].schedule('cobweb', 'real_estate_spider', vendor=vendors[0], crawl_url=','.join(links))
+    DEFAULT_TYPE = 'sell'
+    DEFAULT_VENDOR = 'None'
 
-    Notification('{} - [Server {}]: Launch job={}'.format(datetime.utcnow(), server_id, job_id)).success()
+    def __init__(self, name, spider_name, host, mongodb_credentials):
+        self.server = ScrapydAPI(host)
+        self.host_name = self._strip_host_name(host)
+        self.birth_date = datetime.utcnow()
+        self.name = name
+        self.spider_name = spider_name
+        self.alive = True
+        client = pymongo.MongoClient(mongodb_credentials['server'],
+                                     mongodb_credentials['port'],
+                                     connectTimeoutMS=30000,
+                                     socketTimeoutMS=None,
+                                     socketKeepAlive=True)
 
-    collection.update({"vendor": vendors[0],
-                       "property_id": {"$in": property_ids},
-                       "type": "sell"},
-                      {"$set": {"last_crawled_date": datetime.utcnow()
-                               },
-                      },
-                      multi=True,
-                      upsert=False)
+        db = client[mongodb_credentials['database']]
+        self.collection = db[mongodb_credentials['collection']]
 
+    def kill(self):
+        self.alive = False
+        return self.host_name
 
-def launch_spiders(num_spiders, server_id=0):
-    count = 0
-    while count < num_spiders:
-        count += 1
-        deploy(configs.OVERLORD_ITEMS_PER_SPIDER, server_id)
-        time.sleep(5)
+    def heartbeat(self):
+        return self.alive
 
+    def spawn_spiders(self, num_spiders=5, items_per_spider=100, **kwargs):
+        type = kwargs.get('type', self.DEFAULT_TYPE)
+        vendor = kwargs.get('vendor', self.DEFAULT_VENDOR)
 
-def main(argv=None):
-    total_spiders = 0
-    while total_spiders < configs.OVERLORD_TOTAL_SPIDERS:
-        for server_id, _ in enumerate(scrapyds):
-            running_spiders, finished_spiders = get_running_spiders(server_id)
-            Notification('{} - [Server {}]: spiders running {}, spiders finished {} and total spiders {} !'.format(datetime.utcnow(), server_id, len(running_spiders),
-                                                                                        len(finished_spiders), total_spiders)).info()
-            if len(running_spiders) < configs.OVERLORD_MAX_PARALLEL_SPIDERS:
-                spiders_launching = configs.OVERLORD_MAX_PARALLEL_SPIDERS - len(running_spiders)
-                total_spiders = total_spiders + spiders_launching
-                launch_spiders(spiders_launching, server_id)
+        count = 0
+        while count < num_spiders:
+            count += 1
+            self._spawn(vendor, type, items_per_spider)
+            time.sleep(3)
 
-        time.sleep(configs.OVERLORD_SLEEP_WINDOW)
+    def get_status(self):
+        """
+         Return:
+             the number of running spiders
+             the number of finished spiders
+             the average time for one spider to finish
+        """
+        status = self.server.list_jobs(self.name)
+        running = status['running']
+        finished = status['finished']
+        now = datetime.utcnow()
+        finished_times = [self._time_diff_in_minute(job['end_time'], job['start_time']) for job in finished]
+        avg_time = np.average(finished_times)
 
-    Notification('Completed {} spiders!'.format(total_spiders)).success()
+        Notification('{} - [{}] \t Running Spiders = {}, Finished Spiders = {}, Average Runtime = {}'
+                     .format(datetime.utcnow(),
+                             self.host_name,
+                             len(running),
+                             len(finished),
+                             avg_time
+                             )
+                     .expandtabs(3)
+                     ).info()
 
+        return len(running), len(finished), avg_time
 
-def get_running_spiders(server_id=0):
-    status = scrapyds[server_id].list_jobs('cobweb')
-    running = status['running']
-    finished = status['finished']
-    return running, finished
+    def _spawn(self, vendor, type, items_per_spider=100):
+        # Get the tasks from the database
+        tasks = self._get_tasks_from_database(vendor, type, items_per_spider)
+        if not tasks:
+            raise ValueError('There is no more task from the database!')
 
+        links, property_ids = zip(*tasks)
 
-if __name__ == "__main__":
-    sys.exit(main())
+        # Schedule the tasks with the remote scrapyd server
+        job_id = self.server.schedule(self.name, self.spider_name, vendor=vendor, crawl_url=','.join(links))
 
+        Notification('{} - [{}] \t Launch spider {}'
+                     .format(datetime.utcnow(),
+                             self.host_name,
+                             job_id)
+                     .expandtabs(3)
+                     ).success()
+
+        # Clear the tasks from the database
+        self._clear_tasks_from_database(vendor, type, property_ids)
+
+    def _get_tasks_from_database(self, vendor, type, items_per_spider):
+        cursor = self.collection \
+                     .find({"last_crawled_date": None, "type": type, "vendor": vendor}) \
+                     .sort("created_date", pymongo.ASCENDING) \
+                     .limit(items_per_spider)
+
+        tasks = [(item['link'], item['property_id']) for item in cursor]
+
+        return tasks
+
+    def _clear_tasks_from_database(self, vendor, type, property_ids):
+        self.collection.update({"vendor": vendor, "type": type, "property_id": {"$in": property_ids}},
+                               {"$set": {"last_crawled_date": datetime.utcnow()}},
+                               multi=True,
+                               upsert=False)
+
+    @staticmethod
+    def _time_diff_in_minute(current, previous):
+        return ((parser.parse(current) - parser.parse(previous)).seconds // 60) % 60
+
+    @staticmethod
+    def _strip_host_name(host):
+        return host.replace('http://', '').replace('.compute.amazonaws.com:6800', '')
 
