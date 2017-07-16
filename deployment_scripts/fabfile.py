@@ -23,7 +23,8 @@ Examples:
 import config
 import time
 
-from fabric.api import env, run, cd, lcd, put, abort, prompt, local, settings, prefix
+from fabric.contrib.files import exists
+from fabric.api import *
 
 from aws import AWS
 from notifications import Notification
@@ -33,13 +34,15 @@ GITHUB_USER = 'pvt88/'
 GITHUB_REPO = 'scrapy-cloud'
 TEMP_SLEEP = 15
 
-def create_instance():
+
+def create_instance(num_instances=1):
     """
     Creates an EC2 instance from an AMI and configures it based on config.py.
     """
-    env.host_string = _create_instance()
+    env.host_string = _create_instance(num_instances)
 
 
+@parallel
 def deploy():
     """
     Public function that deploys a fresh scrapy server to an EC2 instance.
@@ -161,8 +164,18 @@ def deploy_local_spider():
             Notification('Deploy spider with response={}'.format(response)).info()
             time.sleep(5)
 
+        for url in env.spider_param_crawl_urls_lease:
+            response = _curl(env.spider_param_vendor, 'lease', url, env.spider_param_start_index)
+            Notification('Deploy spider with response={}'.format(response)).info()
+            time.sleep(5)
+
         for url in env.spider_param_crawl_urls_rent:
             response = _curl(env.spider_param_vendor, 'rent', url, env.spider_param_start_index)
+            Notification('Deploy spider with response={}'.format(response)).info()
+            time.sleep(5)
+
+        for url in env.spider_param_crawl_urls_buy:
+            response = _curl(env.spider_param_vendor, 'buy', url, env.spider_param_start_index)
             Notification('Deploy spider with response={}'.format(response)).info()
             time.sleep(5)
 
@@ -179,8 +192,10 @@ def development():
 
     env.spider_param_vendor = config.SPIDER_PARAM_VENDOR
     env.spider_param_start_index = config.SPIDER_PARAM_START_INDEX
-    env.spider_param_crawl_urls_sell = config.SPIDER_PARAM_CRAWL_URLS_1
-    env.spider_param_crawl_urls_rent = config.SPIDER_PARAM_CRAWL_URLS_2
+    env.spider_param_crawl_urls_sell = config.SPIDER_PARAM_CRAWL_URLS_SELL
+    env.spider_param_crawl_urls_lease = config.SPIDER_PARAM_CRAWL_URLS_LEASE
+    env.spider_param_crawl_urls_buy = config.SPIDER_PARAM_CRAWL_URLS_BUY
+    env.spider_param_crawl_urls_rent = config.SPIDER_PARAM_CRAWL_URLS_RENT
 
 
 def _curl(vendor, type, crawl_url, start_index):
@@ -214,7 +229,7 @@ def _base_environment_settings():
     env.aws_secret_key = config.EC2_AWS_SECRET_KEY
 
 
-def _create_instance():
+def _create_instance(num_instances=1):
     """
     Creates a new EC2 Instance using boto.
     """
@@ -229,21 +244,23 @@ def _create_instance():
     aws_instance_type = prompt("What instance type do you want to create? ", default=env.ec2_instance)
     aws_instance_key_name = prompt("Enter your key pair name (don't include .pem extension)", default=env.aws_key_name)
 
-    BUILD_SERVER = dict(image_id=aws_ami, instance_type=aws_instance_type, security_groups=[aws_security_groups],
+    BUILD_SERVER = dict(image_id=aws_ami,
+                        instance_type=aws_instance_type,
+                        security_groups=[aws_security_groups],
                         key_name=aws_instance_key_name)
 
-    Notification('Spinning up the instance...').info()
+    Notification('Spinning up the instances...').info()
 
     # Create new instance using boto.
-    reservation = connection.run_instances(**BUILD_SERVER)
-    instance = reservation.instances[0]
-    time.sleep(5)
-    while instance.state != 'running':
+    for _ in range(int(num_instances)):
+        reservation = connection.run_instances(**BUILD_SERVER)
+        instance = reservation.instances[0]
         time.sleep(5)
-        instance.update()
-        Notification('-Instance state: %s' % instance.state).info()
+        while instance.state != 'running':
+            time.sleep(5)
+            instance.update()
+            Notification('-Instance {} is {}'.format(instance.id, instance.state)).info()
 
-    Notification('Instance %s was created successfully' % instance.id).info()
     # A new instance take a little while to allow connections so sleep for x seconds.
     Notification('Sleeping for {} seconds before attempting to connect...'.format(TEMP_SLEEP)).info()
     time.sleep(TEMP_SLEEP)
@@ -272,13 +289,15 @@ def _get_all_instances():
 
 def _install_requirements():
     with cd(GITHUB_REPO):
-        run('sudo pip install -q -r requirements.txt', env.hosts)
+        run('sudo pip install --force-reinstall -q -r requirements.txt', env.hosts)
 
 
 def _init_git():
     repo = GITHUB_URL + GITHUB_USER + GITHUB_REPO + '.git'
-    Notification('Cloning the project from {}'.format(repo)).info()
-    run('git clone -q ' + repo, env.hosts)
+    if not exists(GITHUB_REPO):
+        Notification('Cloning the project from {}'.format(repo)).info()
+        run('git clone -q ' + repo, env.hosts)
+
 
 
 def _update_git():

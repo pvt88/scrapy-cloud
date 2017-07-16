@@ -14,7 +14,7 @@ def main(argv=None):
     overseers = []
     total_spiders = 0
     start_time = datetime.utcnow()
-    remote_hosts = configs.OVERLORD_SCRAPYD_URIS
+    remote_hosts = configs.OVERLORD_SCRAPYD_HOSTS
     max_parallel_spiders = configs.OVERLORD_MAX_PARALLEL_SPIDERS
     sleep_window = configs.OVERLORD_SLEEP_WINDOW
     vendor = configs.OVERLORD_VENDOR
@@ -45,6 +45,7 @@ def main(argv=None):
                 if not types:
                     name = overseer.kill()
                     Notification('{} - [Master]: Killing Overseer {}'.format(datetime.utcnow(), name)).warning()
+                    continue
 
                 # If there is still capacity in the overseer, spawn more spiders
                 running_spiders, _, _ = overseer.get_status()
@@ -53,7 +54,7 @@ def main(argv=None):
                     total_spiders += num_new_spiders
                     try:
                         type = types[0]
-                        overseer.spawn_spiders(num_new_spiders, type='rent', vendor=vendor)
+                        overseer.spawn_spiders(num_new_spiders, type=type, vendor=vendor)
                     except ValueError:
                         types.remove(type)
                         Notification('{} - [Master]: Out of {} property to crawl'.format(datetime.utcnow(), type)).warning()

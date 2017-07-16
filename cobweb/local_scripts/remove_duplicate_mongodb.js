@@ -81,3 +81,21 @@ db.property_list_rental.bulkWrite(ops);
 db.property_list_rental.find().forEach(function(obj){
    db.property_list.insert(obj)
 })
+
+db.property_list.updateMany(
+   { "type": "rent" },
+   { $set:
+      {
+        "type": "lease"
+      }
+   }
+)
+
+db.property_list.updateMany(
+   { "type": "to-lease" },
+   { $set:
+      {
+        "type": "rent"
+      }
+   }
+)
