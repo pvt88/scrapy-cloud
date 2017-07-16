@@ -36,7 +36,7 @@ RANDOM_PROXY_MODE = 1
 # Retry many times since proxies often fail
 RETRY_TIMES = 1000
 # Retry on most error codes since proxies fail for different reasons
-RETRY_HTTP_CODES = [500, 503, 504, 514, 400, 401, 403, 404, 408]
+RETRY_HTTP_CODES = [500, 503, 504, 514, 400, 401, 403, 404, 407, 408]
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS=32
@@ -56,14 +56,14 @@ COOKIES_ENABLED=False
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
     'cobweb.middlewares.random_useragent.RandomUserAgentMiddleware': 400,
-    #'cobweb.middlewares.random_proxy.RandomProxyMiddleware': 600,
+    'cobweb.middlewares.random_proxy.RandomProxyMiddleware': 600,
 }
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   #'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
-   'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
+   'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
+   #'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
 }
 
 MONGODB_CREDENTIALS = configs.MONGODB_CREDENTIALS

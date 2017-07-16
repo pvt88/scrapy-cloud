@@ -20,10 +20,12 @@ def extract_number(str):
 		if number:
 			return float(number.replace(',','.'))
 
+
 def extract_unit(str):
 	if str:
 		#TODO: Handle wierd non-letter characters
 		return ''.join(re.findall(r'[^0-9]+', str))
+
 
 def extract_property_id(str):
 	if str:
@@ -33,3 +35,11 @@ def extract_property_id(str):
 				return str[match.start() + 3 :]
 			else:
 				extract_property_id(str[match.end():])
+
+		match = re.search('-ad([0-9]+)', str)
+		if match:
+			if match.end() == len(str):
+				return str[match.start() + 3 :]
+			else:
+				extract_property_id(str[match.end():])
+

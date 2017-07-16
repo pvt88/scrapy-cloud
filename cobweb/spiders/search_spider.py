@@ -18,9 +18,9 @@ class SearchSpider(scrapy.Spider):
 
     def parse(self, response):
         if not isinstance(response, scrapy.http.response.html.HtmlResponse): 
-            response = scrapy.http.response.html.HtmlResponse(response.url,body=response.body)
+            response = scrapy.http.response.html.HtmlResponse(response.url, body=response.body)
 
-        search_results = response.css(u'.search-productItem')        
+        search_results = response.css(u'div[class^="vip"]')
 
         for row in search_results:
             item = PropertyItem()
@@ -38,15 +38,24 @@ class SearchSpider(scrapy.Spider):
         
             price = strip(row.css(u'.product-price::text').extract())
             item["property_price_raw"] = price
-            item["property_price"] = extract_number(price)
-            item["property_price_unit"] = extract_unit(price)
+            if self.type == 'sell' or self.type == 'rent':
+                item["property_price"] = extract_number(price)
+                item["property_price_unit"] = extract_unit(price)
+            else:
+                item["property_price"] = None
+                item["property_price_unit"] = None
 
             property_size = strip(row.css(u'.product-area::text').extract())
             item["property_size_raw"] = property_size
-            item["property_size"] = extract_number(property_size)
-            item["property_size_unit"] = extract_unit(property_size)
+            if self.type == 'sell' or self.type == 'rent':
+                item["property_size"] = extract_number(property_size)
+                item["property_size_unit"] = extract_unit(property_size)
+            else:
+                item["property_size"] = None
+                item["property_size_unit"] = None
 
-            item["property_area"] = strip(row.css(u'.product-city-dist::text').extract())
+            property_area = row.css(u'.product-city-dist::text').extract()
+            item["property_area"] = ','.join([a.strip() for a in property_area])
 
             item["posted_date"] = strip(row.css(u'.floatright::text').extract())
 
