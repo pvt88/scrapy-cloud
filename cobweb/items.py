@@ -40,6 +40,7 @@ class PropertyItem(Item):
 class HouseItem(Item):
 	key = Field()
 	vendor = Field()
+	type = Field()
 	property_id = Field()
 	link = Field()
 	crawled_date = Field()

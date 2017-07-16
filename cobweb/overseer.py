@@ -89,7 +89,7 @@ class Overseer(object):
         links, property_ids = zip(*tasks)
 
         # Schedule the tasks with the remote scrapyd server
-        job_id = self.server.schedule(self.name, self.spider_name, vendor=vendor, crawl_url=','.join(links))
+        job_id = self.server.schedule(self.name, self.spider_name, vendor=vendor, crawl_url=','.join(links), type=type)
 
         Notification('{} - [{}] \t Launch spider {}'
                      .format(datetime.utcnow(),

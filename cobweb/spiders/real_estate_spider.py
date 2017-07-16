@@ -12,9 +12,10 @@ class RealEstateSpider(scrapy.Spider):
 
     name = 'real_estate_spider'
 
-    def __init__(self, vendor=None, crawl_url=None, *args, **kwargs):
+    def __init__(self, vendor=None, crawl_url=None, type=None, *args, **kwargs):
         super(RealEstateSpider, self).__init__(*args, **kwargs)
         self.vendor = vendor
+        self.type = type
         for url in crawl_url.split(','):
             log.debug('Crawling urls={}'.format(url))
             self.start_urls.append(url.replace('http://', 'https://'))
@@ -30,8 +31,9 @@ class RealEstateSpider(scrapy.Spider):
         #Listing Site Information
         item['vendor'] = self.vendor
         item['link'] = response.url
+        item['type'] = self.type
         item['property_id'] = extract_property_id(item["link"])
-        item['key'] = item['vendor'] + ":" + item['property_id']
+        item['key'] = item['vendor'] + ":" + item['property_id'] + ":" + item['type']
         item['crawled_date'] = datetime.utcnow()
         item['posted_date'] = response.css('.prd-more-info div::text').extract()[-3].strip()
         item["expire_date"] = response.css('.prd-more-info div::text').extract()[-1].strip()
