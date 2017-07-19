@@ -44,7 +44,7 @@ class MongoDBPipeline(object):
 
 
             if isinstance(item, PropertyItem):
-                self.collection = self.db['property_list_dev']
+                self.collection = self.db['property_list']
 
                 self.collection.update({"property_id": item['property_id'],
                                         "vendor": item['vendor'],

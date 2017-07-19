@@ -29,6 +29,7 @@ def extract_unit(str):
 
 def extract_property_id(str):
 	if str:
+		str = rchop(str, '.htm')
 		match = re.search('-pr([0-9]+)', str)
 		if match:
 			if match.end() == len(str):
@@ -47,4 +48,10 @@ def extract_property_id(str):
 def extract_listing_type(str):
 	if str:
 		return str.rsplit('/', 1)[1].rsplit('.',)[0]
+
+
+def rchop(str, ending):
+	if str.endswith(ending):
+		return str[:-len(ending)]
+	return str
 
