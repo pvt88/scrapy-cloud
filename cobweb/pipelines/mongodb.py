@@ -44,12 +44,13 @@ class MongoDBPipeline(object):
 
 
             if isinstance(item, PropertyItem):
-                self.collection = self.db['property_list']
+                self.collection = self.db['property_list_dev']
 
                 self.collection.update({"property_id": item['property_id'],
                                         "vendor": item['vendor'],
                                         "type": item['type']},
                                        {"$setOnInsert": {"created_date": item['created_date'],
+                                                         "listing_type": item['listing_type'],
                                                          "last_indexed_date": item['last_indexed_date'],
                                                          "property_size_raw": item['property_size_raw'],
                                                          "property_size": item['property_size'],

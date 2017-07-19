@@ -43,3 +43,8 @@ def extract_property_id(str):
 			else:
 				extract_property_id(str[match.end():])
 
+
+def extract_listing_type(str):
+	if str:
+		return str.rsplit('/', 1)[1].rsplit('.',)[0]
+

@@ -28,6 +28,7 @@ class PropertyItem(Item):
 	last_indexed_date = Field()
 	property_id = Field()
 	link = Field()
+	listing_type = Field()
 	property_size_raw = Field()
 	property_size = Field()
 	property_size_unit = Field()

@@ -159,26 +159,17 @@ def deploy_local_scrapyd():
 
 def deploy_local_spider():
     with lcd('~/' + GITHUB_REPO + '/cobweb'):
-        for url in env.spider_param_crawl_urls_sell:
-            response = _curl(env.spider_param_vendor, 'sell', url, env.spider_param_start_index)
-            Notification('Deploy spider with response={}'.format(response)).info()
-            time.sleep(5)
-
-        for url in env.spider_param_crawl_urls_lease:
-            response = _curl(env.spider_param_vendor, 'lease', url, env.spider_param_start_index)
-            Notification('Deploy spider with response={}'.format(response)).info()
-            time.sleep(5)
-
-        for url in env.spider_param_crawl_urls_rent:
-            response = _curl(env.spider_param_vendor, 'rent', url, env.spider_param_start_index)
-            Notification('Deploy spider with response={}'.format(response)).info()
-            time.sleep(5)
-
-        for url in env.spider_param_crawl_urls_buy:
-            response = _curl(env.spider_param_vendor, 'buy', url, env.spider_param_start_index)
-            Notification('Deploy spider with response={}'.format(response)).info()
-            time.sleep(5)
-
+        for spider_config in env.spider_configs:
+            for type, urls in spider_config['crawl_urls'].items():
+                for url in urls:
+                    response = _curl(spider_config['spider'],
+                                     spider_config['max_depth'],
+                                     spider_config['vendor'],
+                                     type,
+                                     url,
+                                     spider_config['start_index'])
+                    Notification('Deploy spider with response={}'.format(response)).info()
+                    time.sleep(5)
 
 def production():
     _base_environment_settings()
@@ -196,17 +187,18 @@ def development():
     env.spider_param_crawl_urls_lease = config.SPIDER_PARAM_CRAWL_URLS_LEASE
     env.spider_param_crawl_urls_buy = config.SPIDER_PARAM_CRAWL_URLS_BUY
     env.spider_param_crawl_urls_rent = config.SPIDER_PARAM_CRAWL_URLS_RENT
+    env.spider_configs = config.SPIDER_CONFIGS
 
 
-def _curl(vendor, type, crawl_url, start_index):
+def _curl(spider, max_depth, vendor, type, crawl_url, start_index):
     return local('curl http://localhost:6800/schedule.json \
                         -d project=cobweb \
-                        -d spider=search_spider \
-                        -d max_depth=510 \
+                        -d spider={} \
+                        -d max_depth={} \
                         -d vendor={} \
                         -d type={} \
                         -d crawl_url={} \
-                        -d start_index={}'.format(vendor, type, crawl_url, start_index)
+                        -d start_index={}'.format(spider, max_depth, vendor, type, crawl_url, start_index)
                  , capture=True)
 
 
