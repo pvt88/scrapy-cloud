@@ -30,17 +30,22 @@ def extract_unit(str):
 def extract_property_id(str):
 	if str:
 		str = rchop(str, '.htm')
-		match = re.search('-pr([0-9]+)', str)
+		match = re.search('-pr([0-9]+)$', str)
 		if match:
 			if match.end() == len(str):
 				return str[match.start() + 3 :]
 			else:
 				extract_property_id(str[match.end():])
-
-		match = re.search('-ad([0-9]+)', str)
+		match = re.search('-ad([0-9]+)$', str)
 		if match:
 			if match.end() == len(str):
 				return str[match.start() + 3 :]
+			else:
+				extract_property_id(str[match.end():])
+		match = re.search('-([0-9]+)$', str)
+		if match:
+			if match.end() == len(str):
+				return str[match.start() + 1:]
 			else:
 				extract_property_id(str[match.end():])
 

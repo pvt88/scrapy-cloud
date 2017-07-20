@@ -57,7 +57,7 @@ class SearchSpider(scrapy.Spider):
                 item["property_size_unit"] = None
 
             property_area = row.css(u'.product-city-dist::text').extract()
-            item["property_area"] = ','.join([a.strip() for a in property_area])
+            item["property_area"] = ', '.join([a.strip() for a in property_area])
 
             item["posted_date"] = strip(row.css(u'.floatright::text').extract())
 

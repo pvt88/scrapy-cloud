@@ -181,12 +181,6 @@ def development():
     _base_environment_settings()
     env.environment = 'development'
 
-    env.spider_param_vendor = config.SPIDER_PARAM_VENDOR
-    env.spider_param_start_index = config.SPIDER_PARAM_START_INDEX
-    env.spider_param_crawl_urls_sell = config.SPIDER_PARAM_CRAWL_URLS_SELL
-    env.spider_param_crawl_urls_lease = config.SPIDER_PARAM_CRAWL_URLS_LEASE
-    env.spider_param_crawl_urls_buy = config.SPIDER_PARAM_CRAWL_URLS_BUY
-    env.spider_param_crawl_urls_rent = config.SPIDER_PARAM_CRAWL_URLS_RENT
     env.spider_configs = config.SPIDER_CONFIGS
 
 
