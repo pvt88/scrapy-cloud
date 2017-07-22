@@ -56,8 +56,8 @@ COOKIES_ENABLED=False
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
     'cobweb.middlewares.random_useragent.RandomUserAgentMiddleware': 400,
-    'cobweb.middlewares.random_proxy.RandomProxyMiddleware': 600,
-    'scrapy.downloadermiddlewares.retry': None
+    #'cobweb.middlewares.random_proxy.RandomProxyMiddleware': 600,
+    #'scrapy.downloadermiddlewares.retry': None
 }
 
 # Configure item pipelines
