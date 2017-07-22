@@ -111,7 +111,9 @@ class RealEstateSpiderMBND(scrapy.Spider):
         item["contact_name"] = strip(response.css(u'.name-contact a::text').extract())
         #item["contact_phone"] = strip(selector.xpath(u'//div[contains(text(),"\u0110i\u1ec7n tho\u1ea1i")]/following::div[1]//text()').extract())
         #item["contact_mobile"] = strip(selector.xpath(u'//div[contains(text(),"Mobile")]/following::div[1]//text()').extract())
-        item["contact_address"] = strip(response.css(u'span[id="MainContent_ctlDetailBox_lblAddressContact"]::text').extract())
+        contact_address = strip(response.css(u'span[id="MainContent_ctlDetailBox_lblAddressContact"]::text').extract())
+        if address != "":
+            item["contact_address"] = contact_address
         contact_link = strip(response.css(u'.name-contact a::attr(href)').extract())
         if contact_link:
             item["contact_link"] = self.vendor + "/doanh-nghiep/detail" + contact_link

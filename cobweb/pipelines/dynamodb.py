@@ -14,6 +14,11 @@ class DynamoDBPipeline(object):
             return value.strftime('%H:%M:%S')
         elif isinstance(value, float):
             return Decimal(str(value)) # This is to work around boto/DynamoDB restriction on Float
+        elif isinstance(value, str):
+            if value == "":
+                return " "
+            else:
+                return value
         else:
             return value
 

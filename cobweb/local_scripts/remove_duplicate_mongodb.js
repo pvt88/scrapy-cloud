@@ -92,10 +92,10 @@ db.property_list.updateMany(
 )
 
 db.property_list.updateMany(
-   { "type": "to-lease" },
+   { "vendor": "http://www.muabannhadat.vn" },
    { $set:
       {
-        "type": "rent"
+        "last_crawled_date": null
       }
    }
 )
