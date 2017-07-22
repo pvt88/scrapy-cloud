@@ -17,66 +17,71 @@ def main(argv=None):
     remote_hosts = configs.OVERLORD_SCRAPYD_HOSTS
     max_parallel_spiders = configs.OVERLORD_MAX_PARALLEL_SPIDERS
     sleep_window = configs.OVERLORD_SLEEP_WINDOW
-    vendor = configs.OVERLORD_VENDOR
-    types = configs.OVERLORD_PROPERTY_TYPES
+
+    tasks = configs.OVERLORD_CONFIGS
 
     # Some helper methods
-    def _spawn_overseers(hosts):
+    def _spawn_overseers(hosts, spider_name):
         for host in hosts:
-            overseer = Overseer(name='cobweb', spider_name='real_estate_spider', host=host,
+            overseer = Overseer(name='cobweb', spider_name=spider_name, host=host,
                                 mongodb_credentials=configs.MONGODB_CREDENTIALS)
             overseers.append(overseer)
 
     def _days_hours_minutes(td):
         return td.days, td.seconds // 3600, (td.seconds // 60) % 60
 
-    # Create overseer to manage remote scrapyd server
-    _spawn_overseers(remote_hosts)
+    for task in tasks:
+        spider_name = task['spider']
+        vendor = task['vendor']
+        types = task['types']
 
-    while overseers:
-        try:
-            for idx, overseer in enumerate(overseers):
+        # Create overseer to manage remote scrapyd server
+        _spawn_overseers(remote_hosts, spider_name)
 
-                # Remove any dead overseer
-                if not overseer.heartbeat():
-                    overseers.remove(overseer)
-                    continue
+        while overseers:
+            try:
+                for idx, overseer in enumerate(overseers):
 
-                if not types:
-                    name = overseer.kill()
-                    Notification('{} - [Master]: Killing Overseer {}'.format(datetime.utcnow(), name)).warning()
-                    continue
+                    # Remove any dead overseer
+                    if not overseer.heartbeat():
+                        overseers.remove(overseer)
+                        continue
 
-                # If there is still capacity in the overseer, spawn more spiders
-                running_spiders, _, _ = overseer.get_status()
-                if running_spiders < max_parallel_spiders:
-                    num_new_spiders = max_parallel_spiders - running_spiders
-                    total_spiders += num_new_spiders
-                    try:
-                        type = types[0]
-                        overseer.spawn_spiders(num_new_spiders, type=type, vendor=vendor)
-                    except ValueError:
-                        types.remove(type)
-                        Notification('{} - [Master]: Out of {} property to crawl'.format(datetime.utcnow(), type)).warning()
+                    if not types:
+                        name = overseer.kill()
+                        Notification('{} - [Master]: Killing Overseer {}'.format(datetime.utcnow(), name)).warning()
+                        continue
 
-            day, hour, minute = _days_hours_minutes(datetime.utcnow() - start_time)
-            Notification('{} - [Master]: Alive Overseers = {}, Spawn Spiders = {}, Time = {} days {} hours {} minutes'
-                         .format(datetime.utcnow(),
-                                 len(overseers),
-                                 total_spiders,
-                                 day,
-                                 hour,
-                                 minute
-                                 )
-                         ).warning()
+                    # If there is still capacity in the overseer, spawn more spiders
+                    running_spiders, _, _ = overseer.get_status()
+                    if running_spiders < max_parallel_spiders:
+                        num_new_spiders = max_parallel_spiders - running_spiders
+                        total_spiders += num_new_spiders
+                        try:
+                            type = types[0]
+                            overseer.spawn_spiders(num_new_spiders, type=type, vendor=vendor)
+                        except ValueError:
+                            types.remove(type)
+                            Notification('{} - [Master]: Out of {} property to crawl'.format(datetime.utcnow(), type)).warning()
 
-        except Exception as e:
-            Notification('{} - [Exception]: {}'.format(datetime.utcnow(), e)).error()
+                day, hour, minute = _days_hours_minutes(datetime.utcnow() - start_time)
+                Notification('{} - [Master]: Alive Overseers = {}, Spawn Spiders = {}, Time = {} days {} hours {} minutes'
+                             .format(datetime.utcnow(),
+                                     len(overseers),
+                                     total_spiders,
+                                     day,
+                                     hour,
+                                     minute
+                                     )
+                             ).warning()
 
-            time.sleep(4*sleep_window)
-            pass
+            except Exception as e:
+                Notification('{} - [Exception]: {}'.format(datetime.utcnow(), e)).error()
 
-        time.sleep(sleep_window)
+                time.sleep(4*sleep_window)
+                pass
+
+            time.sleep(sleep_window)
 
 
 if __name__ == "__main__":

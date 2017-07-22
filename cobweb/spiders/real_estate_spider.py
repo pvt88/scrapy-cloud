@@ -7,6 +7,7 @@ from cobweb.utilities import strip, extract_number, extract_unit, extract_proper
 
 log = logging.getLogger('cobweb.scrapy.spiders.RealEstateSpider')
 
+
 class RealEstateSpider(scrapy.Spider):
     SEPARATOR = '/'
 
