@@ -63,8 +63,8 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
-   #'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
+   #'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
+   'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
 }
 
 MONGODB_CREDENTIALS = configs.MONGODB_CREDENTIALS
