@@ -56,15 +56,15 @@ COOKIES_ENABLED=False
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
     'cobweb.middlewares.random_useragent.RandomUserAgentMiddleware': 400,
-    #'cobweb.middlewares.random_proxy.RandomProxyMiddleware': 600,
+    'cobweb.middlewares.random_proxy.RandomProxyMiddleware': 600,
     #'scrapy.downloadermiddlewares.retry': None
 }
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   #'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
-   'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
+   'cobweb.pipelines.mongodb.MongoDBPipeline': 100,
+   #'cobweb.pipelines.dynamodb.DynamoDBPipeline': 101,
 }
 
 MONGODB_CREDENTIALS = configs.MONGODB_CREDENTIALS

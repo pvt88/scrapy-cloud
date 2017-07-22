@@ -83,7 +83,7 @@ def install_dependencies():
         libpq-dev python-dev libxml2-dev libxslt1-dev  \
         libldap2-dev libsasl2-dev libffi-dev', env.hosts)
 
-
+@parallel
 def re_deploy():
     """
     Public function that re deploys the scrapy server to EC2 instances.

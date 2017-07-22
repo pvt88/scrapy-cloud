@@ -40,7 +40,7 @@ class RealEstateSpider(scrapy.Spider):
 
         #Property General Information
         item["title"] = response.css('.pm-title h1::text').extract()[0].strip()
-        item["description"] = " ".join([str.strip() for str in response.css('.pm-content .pm-desc::text').extract()])
+        item["description"] = " ".join([line.strip() for line in response.css('.pm-content .pm-desc::text').extract()])
         
         price = response.css('.kqchitiet .gia-title strong::text').extract()[0].strip()
         item["price_raw"] = price
