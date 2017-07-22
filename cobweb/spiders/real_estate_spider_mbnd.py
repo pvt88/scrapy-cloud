@@ -72,7 +72,6 @@ class RealEstateSpiderMBND(scrapy.Spider):
         if address != "":
             item["address"] = address
 
-
         #Property Specifications
         # response.css(u'span[id="MainContent_ctlDetailBox_lblLegalStatus"]::text').extract()
         item["ownership_certificate"] = strip(selector.xpath(u'//th[contains(text(),"Tình trạng pháp lý")]/following::span[1]//text()').extract())
@@ -85,7 +84,7 @@ class RealEstateSpiderMBND(scrapy.Spider):
         # MainContent_ctlDetailBox_lblBathRoom
         item["num_bathrooms"] = extract_number(strip(selector.xpath(u'//th[contains(text(),"Phòng tắm")]/following::span[1]//text()').extract()))
         # MainContent_ctlDetailBox_lblUtility
-        item["furniture"] = ','.join(selector.xpath(u'//th[contains(text(),"Tiện ích")]/following::span[1]//text()').extract()).strip()
+        item["furniture"] = " " + ','.join(selector.xpath(u'//th[contains(text(),"Tiện ích")]/following::span[1]//text()').extract()).strip()
         #item["frontage"] = extract_number(strip(selector.xpath(u'//div[contains(text(),"M\u1eb7t ti\u1ec1n")]/following::div[1]//text()').extract()))
         # MainContent_ctlDetailBox_lblFengShuiDirection
         item["house_orientation"] = strip(selector.xpath(u'//th[contains(text(),"Hướng")]/following::span[1]//text()').extract())
@@ -112,7 +111,7 @@ class RealEstateSpiderMBND(scrapy.Spider):
         #item["contact_phone"] = strip(selector.xpath(u'//div[contains(text(),"\u0110i\u1ec7n tho\u1ea1i")]/following::div[1]//text()').extract())
         #item["contact_mobile"] = strip(selector.xpath(u'//div[contains(text(),"Mobile")]/following::div[1]//text()').extract())
         contact_address = strip(response.css(u'span[id="MainContent_ctlDetailBox_lblAddressContact"]::text').extract())
-        if address != "":
+        if contact_address != "":
             item["contact_address"] = contact_address
         contact_link = strip(response.css(u'.name-contact a::attr(href)').extract())
         if contact_link:

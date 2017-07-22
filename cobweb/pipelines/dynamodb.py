@@ -15,7 +15,7 @@ class DynamoDBPipeline(object):
         elif isinstance(value, float):
             return Decimal(str(value)) # This is to work around boto/DynamoDB restriction on Float
         elif isinstance(value, str):
-            if value == "":
+            if value == "" or value == u'':
                 return " "
             else:
                 return value
