@@ -68,7 +68,9 @@ class RealEstateSpiderMBND(scrapy.Spider):
         item["city"] = strip(response.css(u'span[id="MainContent_ctlDetailBox_lblCity"] a::text').extract())
         #item["area"] =
 
-        item["address"] = strip(response.css(u'span[id="MainContent_ctlDetailBox_lblStreet"]::text').extract())
+        address = strip(response.css(u'span[id="MainContent_ctlDetailBox_lblStreet"]::text').extract())
+        if address != "":
+            item["address"] = address
 
 
         #Property Specifications

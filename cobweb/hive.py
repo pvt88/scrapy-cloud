@@ -18,7 +18,7 @@ def main(argv=None):
     max_parallel_spiders = configs.OVERLORD_MAX_PARALLEL_SPIDERS
     sleep_window = configs.OVERLORD_SLEEP_WINDOW
 
-    tasks = configs.OVERLORD_CONFIGS
+    tasks = configs.OVERSEER_CONFIGS
 
     # Some helper methods
     def _spawn_overseers(hosts, spider_name):
@@ -77,10 +77,14 @@ def main(argv=None):
 
             except Exception as e:
                 Notification('{} - [Exception]: {}'.format(datetime.utcnow(), e)).error()
-
                 time.sleep(4*sleep_window)
                 pass
 
+            Notification('{} - [Master]: Finished vendor={}'
+                         .format(datetime.utcnow(),
+                                 vendor
+                                 )
+                         ).warning()
             time.sleep(sleep_window)
 
 
