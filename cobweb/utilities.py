@@ -18,7 +18,11 @@ def extract_number(str):
 	if str:
 		number = ''.join(re.findall(r'\d*\.?\,?\d+', str))
 		if number:
-			return float(number.replace(',','.'))
+			try:
+				return float(number.replace(',','.'))
+			except ValueError:
+				return None
+				pass
 
 
 def extract_unit(str):

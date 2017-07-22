@@ -16,7 +16,7 @@ class SearchSpiderMBND(scrapy.Spider):
         self.type = type
         self.listing_type = extract_listing_type(self.crawl_url)
         self.max_depth = int(max_depth)
-        self.start_urls = [self.vendor + self.crawl_url + "?p" + str(self.index)]
+        self.start_urls = [self.vendor + self.crawl_url + "?p=" + str(self.index)]
 
     def parse(self, response):
         if not isinstance(response, scrapy.http.response.html.HtmlResponse): 
@@ -60,5 +60,5 @@ class SearchSpiderMBND(scrapy.Spider):
         
         if self.index < self.max_depth and len(search_results) > 0:
             self.index += 1 
-            next_url = self.vendor + self.crawl_url + "?p" + str(self.index)
+            next_url = self.vendor + self.crawl_url + "?p=" + str(self.index)
             yield scrapy.Request(next_url, callback=self.parse)
