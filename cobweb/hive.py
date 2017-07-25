@@ -80,12 +80,13 @@ def main(argv=None):
                 time.sleep(4*sleep_window)
                 pass
 
-            Notification('{} - [Master]: Finished vendor={}'
-                         .format(datetime.utcnow(),
-                                 vendor
-                                 )
-                         ).warning()
             time.sleep(sleep_window)
+
+        Notification('{} - [Master]: Finished vendor={}'
+                     .format(datetime.utcnow(),
+                             vendor
+                             )
+                     ).warning()
 
 
 if __name__ == "__main__":

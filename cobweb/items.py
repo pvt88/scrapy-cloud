@@ -78,6 +78,7 @@ class HouseItem(Item):
 	contact_address = Field()
 	contact_phone = Field()
 	contact_mobile = Field()
+	contact_email = Field()
 	contact_link = Field()
 	project_name = Field()
 	project_owner = Field()

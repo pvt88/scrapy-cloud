@@ -38,7 +38,7 @@ class RealEstateSpiderMBND(scrapy.Spider):
         item['key'] = item['vendor'] + ":" + item['property_id'] + ":" + item['type']
         item['crawled_date'] = datetime.utcnow()
 
-        #item['posted_date'] = response.css('.prd-more-info div::text').extract()[-3].strip()
+        item['posted_date'] = strip(response.css(u'span[id="MainContent_ctlDetailBox_lblDateCreated"]::text').extract())
         #item["expire_date"] = response.css('.prd-more-info div::text').extract()[-1].strip()
 
         #Property General Information
