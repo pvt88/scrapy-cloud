@@ -32,6 +32,11 @@ class MongoDBPipeline(object):
                 raise DropItem("Missing {}!".format(data))
 
         if valid:
+            if isinstance(item, HouseItem):
+                self.collection = self.db['houses']
+                self.collection.insert(dict(item))
+                log.msg("Added House Item to database!", level=log.DEBUG, spider=spider)
+
             if isinstance(item, ProxyItem):
                 self.collection = self.db['proxies']
                 self.collection.update({"ip": item['ip']},

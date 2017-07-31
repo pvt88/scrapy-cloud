@@ -35,7 +35,10 @@ class RealEstateSpiderMBND(scrapy.Spider):
         item['link'] = response.url
         item['type'] = self.type
         item['property_id'] = extract_property_id(item["link"])
-        item['key'] = item['vendor'] + ":" + item['property_id'] + ":" + item['type']
+        if item['property_id']:
+            item['key'] = item['vendor'] + ":" + item['property_id'] + ":" + item['type']
+        else:
+            item['key'] = item['vendor'] + ":" + "FAILURE" + ":" + item['type']
         item['crawled_date'] = datetime.utcnow()
 
         item['posted_date'] = strip(response.css(u'span[id="MainContent_ctlDetailBox_lblDateCreated"]::text').extract())

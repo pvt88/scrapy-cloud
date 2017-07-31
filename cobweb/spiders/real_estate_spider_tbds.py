@@ -38,7 +38,10 @@ class RealEstateSpiderTBDS(scrapy.Spider):
         item['link'] = response.url
         item['type'] = self.type
         item['property_id'] = extract_property_id(item["link"])
-        item['key'] = item['vendor'] + ":" + item['property_id'] + ":" + item['type']
+        if item['property_id']:
+            item['key'] = item['vendor'] + ":" + item['property_id'] + ":" + item['type']
+        else:
+            item['key'] = item['vendor'] + ":" + "FAILURE" + ":" + item['type']
         item['crawled_date'] = datetime.utcnow()
 
         posted_date = response.css(u'.list-info.clearfix .value.line::text').extract()
@@ -56,7 +59,6 @@ class RealEstateSpiderTBDS(scrapy.Spider):
         item["price"] = extract_number(price)
         item["price_unit"] = extract_unit(price)
 
-        # response.css(u'span[id="MainContent_ctlDetailBox_lblSurface"]::text').extract()
         property_size = strip(selector.xpath(u'//span[contains(text(),"Diện tích")]/following::span[1]//text()').extract())
         item["property_size_raw"] = property_size
         item["property_size"] = extract_number(property_size)
