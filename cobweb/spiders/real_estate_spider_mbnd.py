@@ -39,7 +39,6 @@ class RealEstateSpiderMBND(scrapy.Spider):
         item['crawled_date'] = datetime.utcnow()
 
         item['posted_date'] = strip(response.css(u'span[id="MainContent_ctlDetailBox_lblDateCreated"]::text').extract())
-        #item["expire_date"] = response.css('.prd-more-info div::text').extract()[-1].strip()
 
         #Property General Information
         item["title"] = strip(response.css(u'.navi-title::text').extract())
@@ -66,7 +65,6 @@ class RealEstateSpiderMBND(scrapy.Spider):
         item["ward"] = strip(response.css(u'span[id="MainContent_ctlDetailBox_lblWard"] a::text').extract())
         item["district"] = strip(response.css(u'span[id="MainContent_ctlDetailBox_lblDistrict"] a::text').extract())
         item["city"] = strip(response.css(u'span[id="MainContent_ctlDetailBox_lblCity"] a::text').extract())
-        #item["area"] =
 
         address = strip(response.css(u'span[id="MainContent_ctlDetailBox_lblStreet"]::text').extract())
         if address != "":
