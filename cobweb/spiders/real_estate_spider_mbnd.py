@@ -123,6 +123,8 @@ class RealEstateSpiderMBND(scrapy.Spider):
         #item["project_owner"] = strip(selector.xpath(u'//div[contains(text(),"Ch\u1ee7 \u0111\u1ea7u t\u01b0")]/following::div[1]//text()').extract())
         #item["project_scale"] = strip(selector.xpath(u'//div[contains(text(),"Quy m\xf4")]/following::div[1]//text()').extract())
         item["project_link"] = strip(response.css(u'span[id="MainContent_ctlDetailBox_lblProject"] a::attr(href)').extract())
-        
+
+        log.debug('Yield item={}'.format(item))
+
         yield item
 

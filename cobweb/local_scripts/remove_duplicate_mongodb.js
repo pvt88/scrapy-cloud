@@ -92,7 +92,7 @@ db.property_list.updateMany(
 )
 
 db.property_list.updateMany(
-   { "vendor": "http://www.muabannhadat.vn" },
+   {"vendor": , "last_crawled_date": {"$gt": ISODate("2017-07-30")}},
    { $set:
       {
         "last_crawled_date": null

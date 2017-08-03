@@ -4,7 +4,7 @@ import logging
 
 from datetime import datetime
 from cobweb.items import HouseItem
-from cobweb.utilities import strip, extract_number, extract_unit, extract_property_id, find_index_containing_substring
+from cobweb.utilities import strip, extract_number, extract_unit, extract_property_id
 
 log = logging.getLogger('cobweb.scrapy.spiders.RealEstateSpider')
 
@@ -19,11 +19,6 @@ class RealEstateSpiderTBDS(scrapy.Spider):
         for url in crawl_url.split(','):
             log.debug('Crawling urls={}'.format(url))
             self.start_urls.append(url)
-
-    def extract_infor(self, infor, pattern):
-        index = find_index_containing_substring(infor, pattern)
-        if index > 0:
-            return infor[index - 1].strip()
 
     def parse(self, response):
         if not isinstance(response, scrapy.http.response.html.HtmlResponse): 
@@ -42,7 +37,9 @@ class RealEstateSpiderTBDS(scrapy.Spider):
             item['key'] = item['vendor'] + ":" + item['property_id'] + ":" + item['type']
         else:
             item['key'] = item['vendor'] + ":" + "FAILURE" + ":" + item['type']
+
         item['crawled_date'] = datetime.utcnow()
+
 
         posted_date = response.css(u'.list-info.clearfix .value.line::text').extract()
         if len(posted_date) > 2:
@@ -69,19 +66,39 @@ class RealEstateSpiderTBDS(scrapy.Spider):
         else:
             item["price_per_sqm"] = None
 
-        address = strip(response.css(u'.folder-title .pull-left::text').extract()[2])
-        if address != "":
-            item["address"] = address
+        address_infor = response.css(u'.folder-title .pull-left::text').extract()
+        if len(address_infor) > 1:
+            address = strip(address_infor[2])
+            if address != "":
+                item["address"] = address
 
         #Property Specifications
-        infor = selector.xpath(u'//ul[@class="list-info clearfix"]/li//text()').extract()
-        if infor:
-            item["road_width"] = self.extract_infor(infor, "Đường vào")
-            item["num_floors"] = self.extract_infor(infor, "Số tầng")
-            item["num_bedrooms"] = self.extract_infor(infor, "Số phòng")
-            item["num_bathrooms"] = self.extract_infor(infor, "Số toilet")
-            item["frontage"] = self.extract_infor(infor, "Mặt tiền")
-            item["house_orientation"] = self.extract_infor(infor, "Hướng nhà")
+        num_bedrooms = selector.xpath(u'//ul[@class="list-info clearfix"]/li[self::li//text()[contains(.,"S\u1ed1 ph\xf2ng")]]//text()').extract()
+        if num_bedrooms and len(num_bedrooms) > 2:
+            item["num_bedrooms"] = num_bedrooms[1].strip()
+
+        num_bathrooms = selector.xpath( u'//ul[@class="list-info clearfix"]/li[self::li//text()[contains(.,"S\u1ed1 toilet")]]//text()').extract()
+        if num_bathrooms and len(num_bathrooms) > 2:
+            item["num_bathrooms"] = num_bathrooms[1].strip()
+
+        num_floors = selector.xpath(
+            u'//ul[@class="list-info clearfix"]/li[self::li//text()[contains(.,"S\u1ed1 t\u1ea7ng")]]//text()').extract()
+        if num_floors and len(num_floors) > 2:
+            item["num_floors"] = num_floors[1].strip()
+
+        distance_to_road = selector.xpath(
+                u'//ul[@class="list-info clearfix"]/li[self::li//text()[contains(.,"\u0110\u01b0\u1eddng v\xe0o")]]//text()').extract()
+        if distance_to_road and len(distance_to_road) > 2:
+                item["distance_to_road"] = distance_to_road[1].strip()
+
+        frontage = selector.xpath(
+            u'//ul[@class="list-info clearfix"]/li[self::li//text()[contains(.,"M\u1eb7t ti\u1ec1n")]]//text()').extract()
+        if frontage and len(frontage) > 2:
+            item["frontage"] = frontage[1].strip()
+
+        house_orientation = selector.xpath(u'//ul[@class="list-info clearfix"]/li[self::li//text()[contains(.,"H\u01b0\u1edbng nh\xe0")]]//text()').extract()
+        if house_orientation and len(house_orientation) > 2:
+                item["house_orientation"] = house_orientation[1].strip()
 
         #Media Information
         images = response.css(u'.slide_show img::attr(src)').extract()
@@ -99,4 +116,5 @@ class RealEstateSpiderTBDS(scrapy.Spider):
         item["contact_address"] = strip(response.css(u'.info-contact span[id="toAddress"]::text').extract())
 
         yield item
+
 

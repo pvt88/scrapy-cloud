@@ -1,7 +1,10 @@
 import datetime
 import boto3
 from decimal import Decimal
-from cobweb.items import HouseItem, PropertyItem, ProxyItem
+from cobweb.items import HouseItem
+import logging
+
+log = logging.getLogger('cobweb.scrapy.pipeline.dynamodb')
 
 class DynamoDBPipeline(object):
 

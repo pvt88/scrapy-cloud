@@ -77,7 +77,7 @@ class RealEstateSpider(scrapy.Spider):
         item["num_bathrooms"] = extract_number(strip(selector.xpath(u'//div[contains(text(),"S\u1ed1 toilet")]/following::div[1]//text()').extract()))
         item["furniture"] = strip(selector.xpath(u'//div[contains(text(),"N\u1ed9i th\u1ea5t\r\n")]/following::div[1]//text()').extract())
         item["frontage"] = extract_number(strip(selector.xpath(u'//div[contains(text(),"M\u1eb7t ti\u1ec1n")]/following::div[1]//text()').extract()))
-        item["house_orientation"] = strip(selector.xpath(u'//div[contains(text(),"\nH\u01b0\u1edbng nh\xe0")]/following::div[1]//text()').extract())
+        item["house_orientation"] = strip(selector.xpath(u'//div[contains(text(),"H\u01b0\u1edbng nh\xe0")]/following::div[1]//text()').extract())
         item["balcony_orientation"] = strip(selector.xpath(u'//div[contains(text(),"H\u01b0\u1edbng ban c\xf4ng")]/following::div[1]//text()').extract())
         item["distance_to_road"] = extract_number(strip(selector.xpath(u'//div[contains(text(),"\u0110\u01b0\u1eddng v\xe0o")]/following::div[1]//text()').extract()))
 
