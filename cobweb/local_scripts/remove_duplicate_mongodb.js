@@ -99,3 +99,36 @@ db.property_list.updateMany(
       }
    }
 )
+
+db.property_list.aggregate(
+[
+  { "$group": {
+    "_id": "$property_id",
+    "ids": { "$push": "$link" },
+    "count": { "$sum": 1 }
+  }},
+  { $match: {
+    count: { $gte: 2 }
+  } },
+  { $sort : { count : -1} },
+  { $limit : 10 }
+],
+{ allowDiskUse: true}
+);
+
+db.property_list.aggregate(
+[ { $match: { "last_crawled_date": {"$gt": ISODate("2017-07-20")} } },
+  { "$group": {
+    "_id": "$property_id",
+    "created_dates": { "$push": "$created_date" },
+    "links": { "$push": "$link" },
+    "count": { "$sum": 1 }
+  }},
+  { $match: {
+    count: { $gte: 2 }
+  } },
+  { $sort : { count : -1} },
+  { $limit : 10 }
+],
+{ allowDiskUse: true}
+);
