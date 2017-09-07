@@ -3,11 +3,11 @@ import scrapy
 from datetime import datetime
 from cobweb.items import ProxyItem
 
-class IPSearchSpider(scrapy.Spider):
-    name = 'ip_search_spider'
+class ProxyCheckSpider(scrapy.Spider):
+    name = 'proxy_check_spider'
 
     def __init__(self, url=None, max_depth=500, *args, **kwargs):
-        super(IPSearchSpider, self).__init__(*args, **kwargs)
+        super(ProxyCheckSpider, self).__init__(*args, **kwargs)
         self.start_urls.append(url)
         self.index = 1
         self.max_depth = int(max_depth)

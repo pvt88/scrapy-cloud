@@ -4,11 +4,11 @@ from datetime import datetime
 from cobweb.items import PropertyItem
 from cobweb.utilities import extract_number, extract_unit, extract_property_id, strip, extract_listing_type
 
-class SearchSpider(scrapy.Spider):
-    name = 'search_spider'
+class SearchSpiderBDS(scrapy.Spider):
+    name = 'search_spider_bds'
 
     def __init__(self, vendor=None, crawl_url=None, type=None, max_depth=2, start_index=1, *args, **kwargs):
-        super(SearchSpider, self).__init__(*args, **kwargs)
+        super(SearchSpiderBDS, self).__init__(*args, **kwargs)
         self.vendor = vendor
         self.crawl_url = crawl_url
         self.index = int(start_index)

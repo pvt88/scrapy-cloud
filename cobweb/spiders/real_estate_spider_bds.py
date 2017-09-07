@@ -8,13 +8,13 @@ from cobweb.utilities import strip, extract_number, extract_unit, extract_proper
 log = logging.getLogger('cobweb.scrapy.spiders.RealEstateSpider')
 
 
-class RealEstateSpider(scrapy.Spider):
+class RealEstateSpiderBDS(scrapy.Spider):
     SEPARATOR = '/'
 
-    name = 'real_estate_spider'
+    name = 'real_estate_spider_bds'
 
     def __init__(self, vendor=None, crawl_url=None, type=None, *args, **kwargs):
-        super(RealEstateSpider, self).__init__(*args, **kwargs)
+        super(RealEstateSpiderBDS, self).__init__(*args, **kwargs)
         self.vendor = vendor
         self.type = type
         for url in crawl_url.split(','):
