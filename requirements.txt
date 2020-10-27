@@ -10,7 +10,7 @@ cffi==1.10.0
 characteristic==14.3.0
 chardet==3.0.4
 constantly==15.1.0
-cryptography==1.9
+cryptography==3.2
 cssselect==1.0.1
 DateTime==4.2
 docutils==0.13.1
